@@ -1,0 +1,31 @@
+<ion-content class="admin-login">
+  <div class="login-shell">
+    <div class="login-card">
+      <div class="login-brand">
+        <div class="brand-mark">SV</div>
+        <div>
+          <h1>Panel Administrativo</h1>
+          <p>Acceso exclusivo para gestión del sistema.</p>
+        </div>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="form-group">
+          <label>DNI</label>
+          <input class="form-control" formControlName="dni" placeholder="00000000" />
+        </div>
+        <div class="form-group">
+          <label>Contraseña</label>
+          <input class="form-control" type="password" formControlName="password" />
+        </div>
+        <button class="btn primary" type="submit" [disabled]="form.invalid || isSubmitting">
+          {{ isSubmitting ? 'Ingresando...' : 'Ingresar' }}
+        </button>
+      </form>
+
+      <div class="login-footer">
+        <span>Si tienes problemas de acceso contacta al administrador.</span>
+      </div>
+    </div>
+  </div>
+</ion-content>
