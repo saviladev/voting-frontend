@@ -1,0 +1,86 @@
+<div class="grid">
+  <div class="card span-8">
+    <div class="card-header">
+      <div>
+        <h3>Sedes</h3>
+        <p>Sedes activas por asociación.</p>
+      </div>
+      <div class="filter-row">
+        <select
+          class="form-control"
+          [value]="branchAssociationFilter()"
+          (change)="branchAssociationFilter.set(($any($event.target)).value)"
+        >
+          <option value="">Asociación: Todas</option>
+          <option *ngFor="let association of associations()" [value]="association.id">
+            {{ association.name }}
+          </option>
+        </select>
+        <input
+          class="form-control"
+          placeholder="Buscar sede"
+          [value]="branchFilter()"
+          (input)="branchFilter.set(($any($event.target)).value)"
+        />
+      </div>
+    </div>
+    <div class="card-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Sede</th>
+            <th>Asociación</th>
+            <th class="col-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let branch of pagedBranches()">
+            <td>{{ branch.name }}</td>
+            <td>{{ branch.association?.name || '—' }}</td>
+            <td class="col-actions">
+              <div class="actions">
+                <button class="btn ghost" (click)="editBranch(branch)">Editar</button>
+                <button class="btn danger" (click)="deleteBranch(branch)">Eliminar</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="table-footer">
+        <button class="btn ghost" (click)="changePage(branchPage, branchPages(), -1)">Anterior</button>
+        <span>Página {{ branchPage() + 1 }} de {{ branchPages() }}</span>
+        <button class="btn ghost" (click)="changePage(branchPage, branchPages(), 1)">Siguiente</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card span-4">
+    <div class="card-header">
+      <div>
+        <h3>{{ editingBranchId ? 'Editar sede' : 'Nueva sede' }}</h3>
+        <p>Asocia la sede a una organización.</p>
+      </div>
+      <button class="btn ghost" *ngIf="editingBranchId" (click)="resetBranchForm()">Cancelar</button>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="branchForm" (ngSubmit)="saveBranch()">
+        <div class="form-group">
+          <label>Asociación</label>
+          <select class="form-control" formControlName="associationId">
+            <option value="">Selecciona</option>
+            <option *ngFor="let association of associations()" [value]="association.id">
+              {{ association.name }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Nombre de sede</label>
+          <input class="form-control" formControlName="name" />
+        </div>
+        <button class="btn primary" type="submit">
+          {{ editingBranchId ? 'Guardar cambios' : 'Crear sede' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

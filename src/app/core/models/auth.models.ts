@@ -18,3 +18,16 @@ export interface LoginDto {
   dni: string;
   password: string;
 }
+
+export interface ForgotPasswordDto {
+  dni: string;
+}
+
+export interface ResetPasswordDto {
+  token: string;
+  password: string;
+}
+
+export interface ResetPasswordResponseDto {
+  message: string;
+}

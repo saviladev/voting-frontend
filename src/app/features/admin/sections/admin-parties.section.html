@@ -1,0 +1,143 @@
+<div class="grid">
+  <div class="card span-8">
+    <div class="card-header">
+      <div>
+        <h3>Partidos políticos</h3>
+        <p>Organizaciones activas en el sistema.</p>
+      </div>
+      <div class="filter-row">
+        <select
+          class="form-control"
+          [value]="partyStatusFilter()"
+          (change)="partyStatusFilter.set(($any($event.target)).value)"
+        >
+          <option value="ALL">Estado: Todos</option>
+          <option value="ACTIVE">Estado: Activo</option>
+          <option value="INACTIVE">Estado: Inactivo</option>
+        </select>
+        <input
+          class="form-control"
+          placeholder="Buscar partido"
+          [value]="partyFilter()"
+          (input)="partyFilter.set(($any($event.target)).value)"
+        />
+      </div>
+    </div>
+    <div class="card-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Alcance</th>
+            <th>Entidad</th>
+            <th>Sigla</th>
+            <th>Estado</th>
+            <th class="col-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let party of pagedParties()">
+            <td>{{ party.name }}</td>
+            <td>{{ getPartyScopeLabel(party.scope) }}</td>
+            <td>
+              <span *ngIf="party.scope === 'ASSOCIATION'">{{ party.association?.name || '—' }}</span>
+              <span *ngIf="party.scope === 'BRANCH'">{{ party.branch?.name || '—' }}</span>
+              <span *ngIf="party.scope === 'CHAPTER'">{{ party.chapter?.name || '—' }}</span>
+            </td>
+            <td>{{ party.acronym || '—' }}</td>
+            <td>
+              <span class="status" [class.active]="party.isActive">{{
+                party.isActive ? 'Activo' : 'Inactivo'
+              }}</span>
+            </td>
+            <td class="col-actions">
+              <div class="actions">
+                <button class="btn ghost" (click)="editParty(party)">Editar</button>
+                <button class="btn danger" (click)="deleteParty(party)">Eliminar</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="table-footer">
+        <button class="btn ghost" (click)="changePage(partyPage, partyPages(), -1)">Anterior</button>
+        <span>Página {{ partyPage() + 1 }} de {{ partyPages() }}</span>
+        <button class="btn ghost" (click)="changePage(partyPage, partyPages(), 1)">Siguiente</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card span-4">
+    <div class="card-header">
+      <div>
+        <h3>{{ editingPartyId ? 'Editar partido' : 'Nuevo partido' }}</h3>
+        <p>Define alcance y organización.</p>
+      </div>
+      <button class="btn ghost" *ngIf="editingPartyId" (click)="resetPartyForm()">Cancelar</button>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="partyForm" (ngSubmit)="saveParty()">
+        <div class="form-group">
+          <label>Nombre</label>
+          <input class="form-control" formControlName="name" />
+        </div>
+        <div class="form-group">
+          <label>Sigla</label>
+          <input class="form-control" formControlName="acronym" />
+        </div>
+        <div class="form-group">
+          <label>Alcance</label>
+          <select class="form-control" formControlName="scope" (change)="onPartyScopeChange()">
+            <option *ngFor="let scope of partyScopes" [value]="scope">{{ getPartyScopeLabel(scope) }}</option>
+          </select>
+          <small class="helper" *ngIf="partyScopeNotice()">{{ partyScopeNotice() }}</small>
+        </div>
+        <div class="form-group" *ngIf="partyForm.controls.scope.value === 'ASSOCIATION'">
+          <label>Asociación</label>
+          <select
+            class="form-control"
+            formControlName="associationId"
+            (change)="onPartyAssociationChange(($any($event.target)).value)"
+          >
+            <option value="">Selecciona</option>
+            <option *ngFor="let association of associations()" [value]="association.id">
+              {{ association.name }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group" *ngIf="partyForm.controls.scope.value === 'BRANCH'">
+          <label>Sede</label>
+          <select
+            class="form-control"
+            formControlName="branchId"
+            (change)="onPartyBranchChange(($any($event.target)).value)"
+          >
+            <option value="">Selecciona</option>
+            <option *ngFor="let branch of partyBranchesForAssociation()" [value]="branch.id">
+              {{ branch.name }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group" *ngIf="partyForm.controls.scope.value === 'CHAPTER'">
+          <label>Capítulo</label>
+          <select class="form-control" formControlName="chapterId">
+            <option value="">Selecciona</option>
+            <option *ngFor="let chapter of partyChaptersForBranch()" [value]="chapter.id">
+              {{ chapter.name }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Activo</label>
+          <label class="switch">
+            <input type="checkbox" formControlName="isActive" />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <button class="btn primary" type="submit">
+          {{ editingPartyId ? 'Guardar cambios' : 'Crear partido' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

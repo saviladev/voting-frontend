@@ -1,0 +1,50 @@
+<div class="grid">
+  <div class="card span-12">
+    <div class="card-header">
+      <div>
+        <h3>Bitácora de auditoría</h3>
+        <p>Últimos eventos registrados.</p>
+      </div>
+      <div class="filter-row">
+        <input
+          class="form-control"
+          placeholder="Buscar por acción o entidad"
+          [value]="auditFilter()"
+          (input)="auditFilter.set(($any($event.target)).value)"
+        />
+        <button class="btn ghost" (click)="loadAuditLogs()">Actualizar actividad</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Acción</th>
+            <th>Entidad</th>
+            <th>Usuario</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let log of pagedAudit()">
+            <td>{{ log.createdAt | date: 'short' }}</td>
+            <td>{{ log.action }}</td>
+            <td>{{ log.entity }}</td>
+            <td>
+              {{
+                log.user
+                  ? log.user.dni + ' - ' + log.user.firstName + ' ' + log.user.lastName
+                  : 'Sistema'
+              }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="table-footer">
+        <button class="btn ghost" (click)="changePage(auditPage, auditPages(), -1)">Anterior</button>
+        <span>Página {{ auditPage() + 1 }} de {{ auditPages() }}</span>
+        <button class="btn ghost" (click)="changePage(auditPage, auditPages(), 1)">Siguiente</button>
+      </div>
+    </div>
+  </div>
+</div>

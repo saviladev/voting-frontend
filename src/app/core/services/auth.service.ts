@@ -4,7 +4,14 @@ import { Router } from '@angular/router';
 import { ToastController } from '@ionic/angular/standalone';
 import { BehaviorSubject, Observable, catchError, map, of, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AuthUser, LoginDto, LoginResponseDto } from '../models/auth.models';
+import {
+  AuthUser,
+  ForgotPasswordDto,
+  LoginDto,
+  LoginResponseDto,
+  ResetPasswordDto,
+  ResetPasswordResponseDto,
+} from '../models/auth.models';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -77,6 +84,14 @@ export class AuthService {
         this.clearSession();
       }),
     );
+  }
+
+  requestPasswordReset(dto: ForgotPasswordDto): Observable<ResetPasswordResponseDto> {
+    return this.http.post<ResetPasswordResponseDto>(`${this.apiBaseUrl}/auth/forgot-password`, dto);
+  }
+
+  resetPassword(dto: ResetPasswordDto): Observable<ResetPasswordResponseDto> {
+    return this.http.post<ResetPasswordResponseDto>(`${this.apiBaseUrl}/auth/reset-password`, dto);
   }
 
   async handleSessionInvalidation(): Promise<void> {

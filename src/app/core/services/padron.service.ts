@@ -24,10 +24,4 @@ export class PadronService {
     formData.append('file', file);
     return this.http.post<PadronImportResultDto>(`${this.apiBaseUrl}/padron/import`, formData);
   }
-
-  disable(file: File): Observable<PadronImportResultDto> {
-    const formData = new FormData();
-    formData.append('file', file);
-    return this.http.post<PadronImportResultDto>(`${this.apiBaseUrl}/padron/disable`, formData);
-  }
 }

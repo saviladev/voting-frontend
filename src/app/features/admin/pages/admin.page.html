@@ -1,7 +1,16 @@
 <ion-content class="adminlte">
-  <div class="adminlte-shell">
+  <div
+    class="adminlte-shell"
+    [class.sidebar-collapsed]="sidebarCollapsed()"
+    [class.sidebar-expanded]="!sidebarCollapsed()"
+  >
     <aside class="sidebar">
       <div class="brand">
+        <button class="burger sidebar-burger" type="button" (click)="toggleSidebar()">
+          <svg class="burger-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 6h16M4 12h16M4 18h16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" />
+          </svg>
+        </button>
         <div class="brand-mark">SV</div>
         <div>
           <div class="brand-title">Sistema de Votaciones</div>
@@ -13,121 +22,138 @@
         <div class="user-avatar">A</div>
         <div>
           <div class="user-name">{{ currentUserName }}</div>
-          <div class="user-role">SystemAdmin</div>
+          <div class="user-role">{{ currentUserRole }}</div>
         </div>
       </div>
 
       <nav class="nav">
         <div class="nav-section">Inicio</div>
-        <button
-          class="nav-link"
-          [class.active]="activeSection === 'home'"
-          (click)="setSection('home')"
-        >
-          Panel
-        </button>
+        <a class="nav-link" routerLink="/admin/home" routerLinkActive="active">
+          <span class="nav-icon">IN</span>
+          <span class="nav-label">Panel</span>
+        </a>
 
         <div class="nav-section">Gestión</div>
-        <button
+        <a
           *ngIf="canAccessSection('users')"
           class="nav-link"
-          [class.active]="activeSection === 'users'"
-          (click)="setSection('users')"
+          routerLink="/admin/users"
+          routerLinkActive="active"
+          >
+          <span class="nav-icon">US</span>
+          <span class="nav-label">Usuarios</span>
+        </a
         >
-          Usuarios
-        </button>
-        <button
+        <a
           *ngIf="canAccessSection('roles')"
           class="nav-link"
-          [class.active]="activeSection === 'roles'"
-          (click)="setSection('roles')"
+          routerLink="/admin/roles"
+          routerLinkActive="active"
+          >
+          <span class="nav-icon">RO</span>
+          <span class="nav-label">Roles</span>
+        </a
         >
-          Roles
-        </button>
-        <button
+        <a
           *ngIf="canAccessSection('permissions')"
           class="nav-link"
-          [class.active]="activeSection === 'permissions'"
-          (click)="setSection('permissions')"
+          routerLink="/admin/permissions"
+          routerLinkActive="active"
+          >
+          <span class="nav-icon">PE</span>
+          <span class="nav-label">Permisos</span>
+        </a
         >
-          Permisos
-        </button>
 
         <div class="nav-section">Estructura</div>
-        <button
+        <a
           *ngIf="canAccessSection('associations')"
           class="nav-link"
-          [class.active]="activeSection === 'associations'"
-          (click)="setSection('associations')"
+          routerLink="/admin/associations"
+          routerLinkActive="active"
+          >
+          <span class="nav-icon">AS</span>
+          <span class="nav-label">Asociaciones</span>
+        </a
         >
-          Asociaciones
-        </button>
-        <button
+        <a
           *ngIf="canAccessSection('branches')"
           class="nav-link"
-          [class.active]="activeSection === 'branches'"
-          (click)="setSection('branches')"
+          routerLink="/admin/branches"
+          routerLinkActive="active"
+          >
+          <span class="nav-icon">SE</span>
+          <span class="nav-label">Sedes</span>
+        </a
         >
-          Sedes
-        </button>
-        <button
+        <a
           *ngIf="canAccessSection('specialties')"
           class="nav-link"
-          [class.active]="activeSection === 'specialties'"
-          (click)="setSection('specialties')"
+          routerLink="/admin/specialties"
+          routerLinkActive="active"
+          >
+          <span class="nav-icon">ES</span>
+          <span class="nav-label">Especialidades</span>
+        </a
         >
-          Especialidades
-        </button>
-        <button
+        <a
           *ngIf="canAccessSection('chapters')"
           class="nav-link"
-          [class.active]="activeSection === 'chapters'"
-          (click)="setSection('chapters')"
+          routerLink="/admin/chapters"
+          routerLinkActive="active"
+          >
+          <span class="nav-icon">CA</span>
+          <span class="nav-label">Capítulos</span>
+        </a
         >
-          Capítulos
-        </button>
 
         <div class="nav-section">Política</div>
-        <button
+        <a
           *ngIf="canAccessSection('parties')"
           class="nav-link"
-          [class.active]="activeSection === 'parties'"
-          (click)="setSection('parties')"
+          routerLink="/admin/parties"
+          routerLinkActive="active"
+          >
+          <span class="nav-icon">PO</span>
+          <span class="nav-label">Partidos</span>
+        </a
         >
-          Partidos
-        </button>
 
         <div class="nav-section">Sistema</div>
-        <button
+        <a
           *ngIf="canAccessSection('padron')"
           class="nav-link"
-          [class.active]="activeSection === 'padron'"
-          (click)="setSection('padron')"
+          routerLink="/admin/padron"
+          routerLinkActive="active"
+          >
+          <span class="nav-icon">PA</span>
+          <span class="nav-label">Padrón</span>
+        </a
         >
-          Padrón
-        </button>
-        <button
+        <a
           *ngIf="canAccessSection('audit')"
           class="nav-link"
-          [class.active]="activeSection === 'audit'"
-          (click)="setSection('audit')"
+          routerLink="/admin/audit"
+          routerLinkActive="active"
+          >
+          <span class="nav-icon">AU</span>
+          <span class="nav-label">Auditoría</span>
+        </a
         >
-          Auditoría
-        </button>
       </nav>
 
       <div class="sidebar-footer">
         <div class="stat">
           <span>Usuarios</span>
-          <strong>{{ users().length }}</strong>
+          <strong>{{ usersCount() }}</strong>
         </div>
         <div class="stat">
           <span>Capítulos</span>
-          <strong>{{ chapters().length }}</strong>
+          <strong>{{ chaptersCount() }}</strong>
         </div>
         <div class="stat">
           <span>Partidos</span>
-          <strong>{{ parties().length }}</strong>
+          <strong>{{ partiesCount() }}</strong>
         </div>
       </div>
     </aside>
@@ -135,1165 +161,22 @@
     <div class="main">
       <header class="topbar">
         <div class="topbar-left">
-          <div class="breadcrumb">Admin / {{ sectionTitle }}</div>
-          <h1>{{ sectionTitle }}</h1>
-          <p>{{ sectionDescription }}</p>
+          <div>
+            <div class="breadcrumb">Admin / {{ sectionTitle }}</div>
+            <h1>{{ sectionTitle }}</h1>
+            <p>{{ sectionDescription }}</p>
+          </div>
         </div>
         <div class="topbar-actions">
-          <button class="btn ghost" (click)="loadAuditLogs()">Actualizar actividad</button>
           <button class="btn danger" (click)="logout()">Salir</button>
         </div>
       </header>
 
       <section class="content">
-        <!-- HOME -->
-        <div class="grid" *ngIf="activeSection === 'home'">
-          <div class="card span-12">
-            <div class="card-header">
-              <div>
-                <h3>Bienvenido, {{ currentUserName }}</h3>
-                <p>Selecciona una sección del menú para empezar a administrar el sistema.</p>
-              </div>
-            </div>
-            <div class="card-body">
-              <div class="quick-actions">
-                <button
-                  class="btn"
-                  *ngIf="canAccessSection('users')"
-                  (click)="setSection('users')"
-                >
-                  Gestionar usuarios
-                </button>
-                <button
-                  class="btn"
-                  *ngIf="canAccessSection('padron')"
-                  (click)="setSection('padron')"
-                >
-                  Importar padrón
-                </button>
-                <button
-                  class="btn ghost"
-                  *ngIf="canAccessSection('parties')"
-                  (click)="setSection('parties')"
-                >
-                  Crear partido
-                </button>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- USERS -->
-        <div class="grid" *ngIf="activeSection === 'users' && canAccessSection('users')">
-          <div class="card span-8">
-            <div class="card-header">
-              <div>
-                <h3>Usuarios registrados</h3>
-                <p>Lista completa con roles y capítulo asignado.</p>
-              </div>
-              <div class="filter-row">
-                <select class="form-control" [value]="userStatusFilter()" (change)="userStatusFilter.set(($any($event.target)).value)">
-                  <option value="ALL">Estado: Todos</option>
-                  <option value="ACTIVE">Estado: Activo</option>
-                  <option value="INACTIVE">Estado: Inactivo</option>
-                </select>
-                <select class="form-control" [value]="userChapterFilter()" (change)="userChapterFilter.set(($any($event.target)).value)">
-                  <option value="">Capítulo: Todos</option>
-                  <option *ngFor="let chapter of chapters()" [value]="chapter.id">{{ chapter.name }}</option>
-                </select>
-                <input
-                  class="form-control"
-                  placeholder="Buscar por DNI, nombre o correo"
-                  [value]="userFilter()"
-                  (input)="userFilter.set(($any($event.target)).value)"
-                />
-              </div>
-            </div>
-            <div class="card-body">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>DNI</th>
-                    <th>Nombre</th>
-                    <th>Capítulo</th>
-                    <th>Roles</th>
-                    <th>Estado</th>
-                    <th class="col-actions">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let user of pagedUsers()">
-                    <td>{{ user.dni }}</td>
-                    <td>{{ user.firstName }} {{ user.lastName }}</td>
-                    <td>
-                      {{ user.chapter?.name }}
-                      <small>
-                        {{ user.chapter?.branch?.name }}
-                          <span *ngIf="user.chapter?.specialties?.length">
-                            ·
-                            <span *ngFor="let specialty of user.chapter?.specialties; let last = last">
-                              {{ specialty.specialty?.name }}<span *ngIf="!last">, </span>
-                            </span>
-                          </span>
-                      </small>
-                    </td>
-                    <td>
-                      <span class="badge" *ngFor="let role of user.roles">{{ role.role.name }}</span>
-                    </td>
-                    <td>
-                      <span class="status" [class.active]="user.isActive">{{
-                        user.isActive ? 'Activo' : 'Inactivo'
-                      }}</span>
-                    </td>
-                    <td class="col-actions">
-                      <div class="actions">
-                        <button class="btn ghost" (click)="editUser(user)">Editar</button>
-                        <button class="btn danger" (click)="deleteUser(user)">Eliminar</button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <div class="table-footer">
-                <button class="btn ghost" (click)="changePage(userPage, userPages(), -1)">Anterior</button>
-                <span>Página {{ userPage() + 1 }} de {{ userPages() }}</span>
-                <button class="btn ghost" (click)="changePage(userPage, userPages(), 1)">Siguiente</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="card span-4">
-            <div class="card-header">
-              <div>
-                <h3>{{ editingUserId ? 'Editar usuario' : 'Nuevo usuario' }}</h3>
-                <p>Completa los datos del colegiado.</p>
-              </div>
-              <button class="btn ghost" *ngIf="editingUserId" (click)="resetUserForm()">Cancelar</button>
-            </div>
-            <div class="card-body">
-              <form [formGroup]="userForm" (ngSubmit)="saveUser()">
-                <div class="form-group">
-                  <label>DNI</label>
-                  <input class="form-control" formControlName="dni" placeholder="00000000" />
-                </div>
-                <div class="form-group">
-                  <label>Contraseña</label>
-                  <input class="form-control" type="password" formControlName="password" />
-                  <small>Opcional al editar</small>
-                </div>
-                <div class="form-group">
-                  <label>Nombres</label>
-                  <input class="form-control" formControlName="firstName" />
-                </div>
-                <div class="form-group">
-                  <label>Apellidos</label>
-                  <input class="form-control" formControlName="lastName" />
-                </div>
-                <div class="form-group">
-                  <label>Teléfono</label>
-                  <input class="form-control" formControlName="phone" />
-                </div>
-                <div class="form-group">
-                  <label>Email</label>
-                  <input class="form-control" type="email" formControlName="email" />
-                </div>
-                <div class="form-group">
-                  <label>Capítulo</label>
-                  <select class="form-control" formControlName="chapterId">
-                    <option value="">Selecciona</option>
-                    <option *ngFor="let chapter of chapters()" [value]="chapter.id">
-                      {{ chapter.name }}
-                    </option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label>Roles</label>
-                  <select class="form-control" formControlName="roles" multiple>
-                    <option *ngFor="let role of roles()" [value]="role.name">{{ role.name }}</option>
-                  </select>
-                </div>
-                <div class="form-group inline">
-                  <label>Activo</label>
-                  <label class="switch">
-                    <input type="checkbox" formControlName="isActive" />
-                    <span class="slider"></span>
-                  </label>
-                </div>
-                <button class="btn primary" type="submit">
-                  {{ editingUserId ? 'Guardar cambios' : 'Crear usuario' }}
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-
-        <!-- ROLES -->
-        <div class="grid" *ngIf="activeSection === 'roles' && canAccessSection('roles')">
-          <div class="card span-8">
-            <div class="card-header">
-              <div>
-                <h3>Roles activos</h3>
-                <p>Roles y permisos asignados.</p>
-              </div>
-              <input
-                class="form-control"
-                placeholder="Buscar rol"
-                [value]="roleFilter()"
-                (input)="roleFilter.set(($any($event.target)).value)"
-              />
-            </div>
-            <div class="card-body">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>Rol</th>
-                    <th>Descripción</th>
-                    <th>Permisos</th>
-                    <th class="col-actions">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let role of pagedRoles()">
-                    <td>{{ role.name }}</td>
-                    <td>{{ role.description || '—' }}</td>
-                    <td>
-                      <span class="badge" *ngFor="let permission of role.permissions">
-                        {{ permission.permission.key }}
-                      </span>
-                    </td>
-                    <td class="col-actions">
-                      <div class="actions">
-                        <button class="btn ghost" (click)="editRole(role)">Editar</button>
-                        <button class="btn danger" (click)="deleteRole(role)">Eliminar</button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <div class="table-footer">
-                <button class="btn ghost" (click)="changePage(rolePage, rolePages(), -1)">Anterior</button>
-                <span>Página {{ rolePage() + 1 }} de {{ rolePages() }}</span>
-                <button class="btn ghost" (click)="changePage(rolePage, rolePages(), 1)">Siguiente</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="card span-4">
-            <div class="card-header">
-              <div>
-                <h3>{{ editingRoleId ? 'Editar rol' : 'Nuevo rol' }}</h3>
-                <p>Define nombre y descripción.</p>
-              </div>
-              <button class="btn ghost" *ngIf="editingRoleId" (click)="resetRoleForm()">Cancelar</button>
-            </div>
-            <div class="card-body">
-              <form [formGroup]="roleForm" (ngSubmit)="saveRole()">
-                <div class="form-group">
-                  <label>Nombre</label>
-                  <input class="form-control" formControlName="name" />
-                </div>
-                <div class="form-group">
-                  <label>Descripción</label>
-                  <input class="form-control" formControlName="description" />
-                </div>
-                <button class="btn primary" type="submit">
-                  {{ editingRoleId ? 'Guardar cambios' : 'Crear rol' }}
-                </button>
-              </form>
-            </div>
-          </div>
-
-          <div class="card span-4">
-            <div class="card-header">
-              <div>
-                <h3>Asignar permisos</h3>
-                <p>Reemplaza permisos por rol.</p>
-              </div>
-            </div>
-            <div class="card-body">
-              <form [formGroup]="assignPermissionsForm" (ngSubmit)="replacePermissions()">
-                <div class="form-group">
-                  <label>Rol</label>
-                  <select class="form-control" formControlName="roleId">
-                    <option value="">Selecciona</option>
-                    <option *ngFor="let role of roles()" [value]="role.id">{{ role.name }}</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label>Permisos</label>
-                  <select class="form-control" formControlName="permissions" multiple>
-                    <option *ngFor="let permission of permissions()" [value]="permission.key">
-                      {{ permission.key }}
-                    </option>
-                  </select>
-                </div>
-                <button class="btn primary" type="submit">Reemplazar permisos</button>
-              </form>
-            </div>
-          </div>
-        </div>
-
-        <!-- PERMISSIONS -->
-        <div class="grid" *ngIf="activeSection === 'permissions' && canAccessSection('permissions')">
-          <div class="card span-8">
-            <div class="card-header">
-              <div>
-                <h3>Permisos</h3>
-                <p>Catálogo de permisos activos.</p>
-              </div>
-              <input
-                class="form-control"
-                placeholder="Buscar permiso"
-                [value]="permissionFilter()"
-                (input)="permissionFilter.set(($any($event.target)).value)"
-              />
-            </div>
-            <div class="card-body">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>Clave</th>
-                    <th>Descripción</th>
-                    <th class="col-actions">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let permission of pagedPermissions()">
-                    <td>{{ permission.key }}</td>
-                    <td>{{ permission.description || '—' }}</td>
-                    <td class="col-actions">
-                      <div class="actions">
-                        <button class="btn ghost" (click)="editPermission(permission)">Editar</button>
-                        <button class="btn danger" (click)="deletePermission(permission)">Eliminar</button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <div class="table-footer">
-                <button class="btn ghost" (click)="changePage(permissionPage, permissionPages(), -1)">Anterior</button>
-                <span>Página {{ permissionPage() + 1 }} de {{ permissionPages() }}</span>
-                <button class="btn ghost" (click)="changePage(permissionPage, permissionPages(), 1)">Siguiente</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="card span-4">
-            <div class="card-header">
-              <div>
-                <h3>{{ editingPermissionId ? 'Editar permiso' : 'Nuevo permiso' }}</h3>
-                <p>Define clave y descripción.</p>
-              </div>
-              <button
-                class="btn ghost"
-                *ngIf="editingPermissionId"
-                (click)="resetPermissionForm()"
-              >
-                Cancelar
-              </button>
-            </div>
-            <div class="card-body">
-              <form [formGroup]="permissionForm" (ngSubmit)="savePermission()">
-                <div class="form-group">
-                  <label>Clave</label>
-                  <input class="form-control" formControlName="key" />
-                </div>
-                <div class="form-group">
-                  <label>Descripción</label>
-                  <input class="form-control" formControlName="description" />
-                </div>
-                <button class="btn primary" type="submit">
-                  {{ editingPermissionId ? 'Guardar cambios' : 'Crear permiso' }}
-                </button>
-              </form>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- ASSOCIATIONS -->
-        <div class="grid" *ngIf="activeSection === 'associations' && canAccessSection('associations')">
-          <div class="card span-8">
-            <div class="card-header">
-              <div>
-                <h3>Asociaciones</h3>
-                <p>Listado principal de asociaciones.</p>
-              </div>
-              <input
-                class="form-control"
-                placeholder="Buscar asociación"
-                [value]="associationFilter()"
-                (input)="associationFilter.set(($any($event.target)).value)"
-              />
-            </div>
-            <div class="card-body">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>Nombre</th>
-                    <th class="col-actions">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let association of pagedAssociations()">
-                    <td>{{ association.name }}</td>
-                    <td class="col-actions">
-                      <div class="actions">
-                        <button class="btn ghost" (click)="editAssociation(association)">Editar</button>
-                        <button class="btn danger" (click)="deleteAssociation(association)">Eliminar</button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <div class="table-footer">
-                <button class="btn ghost" (click)="changePage(associationPage, associationPages(), -1)">
-                  Anterior
-                </button>
-                <span>Página {{ associationPage() + 1 }} de {{ associationPages() }}</span>
-                <button class="btn ghost" (click)="changePage(associationPage, associationPages(), 1)">
-                  Siguiente
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="card span-4">
-            <div class="card-header">
-              <div>
-                <h3>{{ editingAssociationId ? 'Editar asociación' : 'Nueva asociación' }}</h3>
-                <p>Completa el nombre legal.</p>
-              </div>
-              <button
-                class="btn ghost"
-                *ngIf="editingAssociationId"
-                (click)="resetAssociationForm()"
-              >
-                Cancelar
-              </button>
-            </div>
-            <div class="card-body">
-              <form [formGroup]="associationForm" (ngSubmit)="saveAssociation()">
-                <div class="form-group">
-                  <label>Nombre</label>
-                  <input class="form-control" formControlName="name" />
-                </div>
-                <button class="btn primary" type="submit">
-                  {{ editingAssociationId ? 'Guardar cambios' : 'Crear asociación' }}
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-
-        <!-- BRANCHES -->
-        <div class="grid" *ngIf="activeSection === 'branches' && canAccessSection('branches')">
-          <div class="card span-8">
-            <div class="card-header">
-              <div>
-                <h3>Sedes</h3>
-                <p>Listado de sedes por asociación.</p>
-              </div>
-              <div class="filter-row">
-                <select class="form-control" [value]="branchAssociationFilter()" (change)="branchAssociationFilter.set(($any($event.target)).value)">
-                  <option value="">Asociación: Todas</option>
-                  <option *ngFor="let association of associations()" [value]="association.id">
-                    {{ association.name }}
-                  </option>
-                </select>
-                <input
-                  class="form-control"
-                  placeholder="Buscar sede"
-                  [value]="branchFilter()"
-                  (input)="branchFilter.set(($any($event.target)).value)"
-                />
-              </div>
-            </div>
-            <div class="card-body">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>Capítulo</th>
-                    <th>Asociación</th>
-                    <th class="col-actions">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let branch of pagedBranches()">
-                    <td>{{ branch.name }}</td>
-                    <td>{{ branch.association?.name }}</td>
-                    <td class="col-actions">
-                      <div class="actions">
-                        <button class="btn ghost" (click)="editBranch(branch)">Editar</button>
-                        <button class="btn danger" (click)="deleteBranch(branch)">Eliminar</button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <div class="table-footer">
-                <button class="btn ghost" (click)="changePage(branchPage, branchPages(), -1)">Anterior</button>
-                <span>Página {{ branchPage() + 1 }} de {{ branchPages() }}</span>
-                <button class="btn ghost" (click)="changePage(branchPage, branchPages(), 1)">Siguiente</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="card span-4">
-            <div class="card-header">
-              <div>
-                <h3>{{ editingBranchId ? 'Editar sede' : 'Nueva sede' }}</h3>
-                <p>Asocia la sede a una organización.</p>
-              </div>
-              <button class="btn ghost" *ngIf="editingBranchId" (click)="resetBranchForm()">
-                Cancelar
-              </button>
-            </div>
-            <div class="card-body">
-              <form [formGroup]="branchForm" (ngSubmit)="saveBranch()">
-                <div class="form-group">
-                  <label>Asociación</label>
-                  <select class="form-control" formControlName="associationId">
-                    <option value="">Selecciona</option>
-                    <option *ngFor="let association of associations()" [value]="association.id">
-                      {{ association.name }}
-                    </option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label>Nombre de sede</label>
-                  <input class="form-control" formControlName="name" />
-                </div>
-                <button class="btn primary" type="submit">
-                  {{ editingBranchId ? 'Guardar cambios' : 'Crear sede' }}
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-
-        <!-- SPECIALTIES -->
-        <div class="grid" *ngIf="activeSection === 'specialties' && canAccessSection('specialties')">
-          <div class="card span-8">
-            <div class="card-header">
-              <div>
-                <h3>Especialidades</h3>
-                <p>Catálogo de especialidades profesionales.</p>
-              </div>
-              <div class="filter-row">
-                <select
-                  class="form-control"
-                  [value]="specialtyAssociationFilter()"
-                  (change)="specialtyAssociationFilter.set(($any($event.target)).value)"
-                >
-                  <option value="">Asociación: Todas</option>
-                  <option *ngFor="let association of associations()" [value]="association.id">
-                    {{ association.name }}
-                  </option>
-                </select>
-                <input
-                  class="form-control"
-                  placeholder="Buscar especialidad"
-                  [value]="specialtyFilter()"
-                  (input)="specialtyFilter.set(($any($event.target)).value)"
-                />
-              </div>
-            </div>
-            <div class="card-body">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>Especialidad</th>
-                    <th>Asociación</th>
-                    <th class="col-actions">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let specialty of pagedSpecialties()">
-                    <td>{{ specialty.name }}</td>
-                    <td>{{ specialty.association?.name || '—' }}</td>
-                    <td class="col-actions">
-                      <div class="actions">
-                        <button class="btn ghost" (click)="editSpecialty(specialty)">Editar</button>
-                        <button class="btn danger" (click)="deleteSpecialty(specialty)">Eliminar</button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <div class="table-footer">
-                <button class="btn ghost" (click)="changePage(specialtyPage, specialtyPages(), -1)">Anterior</button>
-                <span>Página {{ specialtyPage() + 1 }} de {{ specialtyPages() }}</span>
-                <button class="btn ghost" (click)="changePage(specialtyPage, specialtyPages(), 1)">Siguiente</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="card span-4">
-            <div class="card-header">
-              <div>
-                <h3>{{ editingSpecialtyId ? 'Editar especialidad' : 'Nueva especialidad' }}</h3>
-                <p>Actualiza el catálogo.</p>
-              </div>
-              <button
-                class="btn ghost"
-                *ngIf="editingSpecialtyId"
-                (click)="resetSpecialtyForm()"
-              >
-                Cancelar
-              </button>
-            </div>
-            <div class="card-body">
-              <form [formGroup]="specialtyForm" (ngSubmit)="saveSpecialty()">
-                <div class="form-group">
-                  <label>Asociación</label>
-                  <select
-                    class="form-control"
-                    formControlName="associationId"
-                  >
-                    <option value="">Selecciona</option>
-                    <option *ngFor="let association of associations()" [value]="association.id">
-                      {{ association.name }}
-                    </option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label>Nombre</label>
-                  <input class="form-control" formControlName="name" />
-                </div>
-                <button class="btn primary" type="submit">
-                  {{ editingSpecialtyId ? 'Guardar cambios' : 'Crear especialidad' }}
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-
-        <!-- CHAPTERS -->
-        <div class="grid" *ngIf="activeSection === 'chapters' && canAccessSection('chapters')">
-          <div class="card span-8">
-            <div class="card-header">
-              <div>
-                <h3>Capítulos</h3>
-                <p>Capítulos definidos por sedes y especialidades.</p>
-              </div>
-              <div class="filter-row">
-                <select
-                  class="form-control"
-                  [value]="chapterAssociationFilter()"
-                  (change)="onChapterAssociationFilterChange(($any($event.target)).value)"
-                >
-                  <option value="">Asociación: Todas</option>
-                  <option *ngFor="let association of associations()" [value]="association.id">
-                    {{ association.name }}
-                  </option>
-                </select>
-                <select class="form-control" [value]="chapterBranchFilter()" (change)="chapterBranchFilter.set(($any($event.target)).value)">
-                  <option value="">Sede: Todas</option>
-                  <option *ngFor="let branch of branchesForChapterAssociation()" [value]="branch.id">
-                    {{ branch.name }}
-                  </option>
-                </select>
-                <select class="form-control" [value]="chapterSpecialtyFilter()" (change)="chapterSpecialtyFilter.set(($any($event.target)).value)">
-                  <option value="">Especialidad: Todas</option>
-                  <option *ngFor="let specialty of specialtiesForChapterFilter()" [value]="specialty.id">
-                    {{ specialty.name }}
-                  </option>
-                </select>
-                <input
-                  class="form-control"
-                  placeholder="Buscar capítulo"
-                  [value]="chapterFilter()"
-                  (input)="chapterFilter.set(($any($event.target)).value)"
-                />
-              </div>
-            </div>
-            <div class="card-body">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>Capítulo</th>
-                    <th>Sede</th>
-                    <th>Especialidad</th>
-                    <th class="col-actions">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let chapter of pagedChapters()">
-                    <td>{{ chapter.name }}</td>
-                    <td>{{ chapter.branch?.name }}</td>
-                    <td>
-                      <span class="badge" *ngFor="let specialty of chapter.specialties">
-                        {{ specialty.specialty?.name }}
-                      </span>
-                    </td>
-                    <td class="col-actions">
-                      <div class="actions">
-                        <button class="btn ghost" (click)="editChapter(chapter)">Editar</button>
-                        <button class="btn danger" (click)="deleteChapter(chapter)">Eliminar</button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <div class="table-footer">
-                <button class="btn ghost" (click)="changePage(chapterPage, chapterPages(), -1)">Anterior</button>
-                <span>Página {{ chapterPage() + 1 }} de {{ chapterPages() }}</span>
-                <button class="btn ghost" (click)="changePage(chapterPage, chapterPages(), 1)">Siguiente</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="card span-4">
-            <div class="card-header">
-              <div>
-                <h3>{{ editingChapterId ? 'Editar capítulo' : 'Nuevo capítulo' }}</h3>
-                <p>Combina sede + especialidades.</p>
-              </div>
-              <button class="btn ghost" *ngIf="editingChapterId" (click)="resetChapterForm()">
-                Cancelar
-              </button>
-            </div>
-            <div class="card-body">
-              <form [formGroup]="chapterForm" (ngSubmit)="saveChapter()">
-                <div class="form-group">
-                  <label>Asociación</label>
-                  <select
-                    class="form-control"
-                    [value]="chapterAssociationFilter()"
-                    (change)="onChapterAssociationChange(($any($event.target)).value)"
-                  >
-                    <option value="">Selecciona</option>
-                    <option *ngFor="let association of associations()" [value]="association.id">
-                      {{ association.name }}
-                    </option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label>Sede</label>
-                  <select
-                    class="form-control"
-                    formControlName="branchId"
-                    (change)="onChapterBranchChange(($any($event.target)).value)"
-                    [disabled]="!chapterAssociationFilter()"
-                  >
-                    <option value="">{{ chapterAssociationFilter() ? 'Selecciona' : 'Selecciona asociación primero' }}</option>
-                    <option *ngFor="let branch of branchesForChapterAssociation()" [value]="branch.id">
-                      {{ branch.name }}
-                    </option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label>Especialidades</label>
-                  <div class="chip-select" #chapterSpecialtiesSelect [class.open]="chapterSpecialtiesOpen()">
-                    <button
-                      class="chip-select-trigger"
-                      type="button"
-                      (click)="toggleChapterSpecialtiesDropdown()"
-                      [disabled]="!chapterAssociationFilter() || !chapterFormBranchId()"
-                    >
-                      <span *ngIf="selectedChapterSpecialties().length; else specialtyPlaceholder">
-                        {{ selectedChapterSpecialties().length }} seleccionadas
-                      </span>
-                      <ng-template #specialtyPlaceholder>
-                        {{
-                          chapterAssociationFilter()
-                            ? (chapterFormBranchId() ? 'Selecciona especialidades' : 'Selecciona sede primero')
-                            : 'Selecciona asociación primero'
-                        }}
-                      </ng-template>
-                    </button>
-                    <div class="chip-select-menu">
-                      <button
-                        class="chip-option"
-                        type="button"
-                        *ngFor="let specialty of specialtiesForChapter()"
-                        (click)="toggleChapterSpecialtySelection(specialty.id)"
-                      >
-                        <span class="chip-option-box" [class.checked]="chapterFormSpecialtyIds().includes(specialty.id)"></span>
-                        <span>{{ specialty.name }}</span>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="chip-row" *ngIf="selectedChapterSpecialties().length">
-                    <span class="chip" *ngFor="let specialty of selectedChapterSpecialties()">
-                      {{ specialty.name }}
-                      <button type="button" class="chip-remove" (click)="removeChapterSpecialty(specialty.id)">×</button>
-                    </span>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label>Nombre de capítulo</label>
-                  <input class="form-control" formControlName="name" />
-                </div>
-                <button class="btn primary" type="submit">
-                  {{ editingChapterId ? 'Guardar cambios' : 'Crear capítulo' }}
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-
-        <!-- PARTIES -->
-        <div class="grid" *ngIf="activeSection === 'parties' && canAccessSection('parties')">
-          <div class="card span-8">
-            <div class="card-header">
-              <div>
-                <h3>Partidos políticos</h3>
-                <p>Organizaciones activas en el sistema.</p>
-              </div>
-              <div class="filter-row">
-                <select class="form-control" [value]="partyStatusFilter()" (change)="partyStatusFilter.set(($any($event.target)).value)">
-                  <option value="ALL">Estado: Todos</option>
-                  <option value="ACTIVE">Estado: Activo</option>
-                  <option value="INACTIVE">Estado: Inactivo</option>
-                </select>
-                <input
-                  class="form-control"
-                  placeholder="Buscar partido"
-                  [value]="partyFilter()"
-                  (input)="partyFilter.set(($any($event.target)).value)"
-                />
-              </div>
-            </div>
-            <div class="card-body">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>Nombre</th>
-                    <th>Alcance</th>
-                    <th>Entidad</th>
-                    <th>Sigla</th>
-                    <th>Estado</th>
-                    <th class="col-actions">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let party of pagedParties()">
-                    <td>{{ party.name }}</td>
-                    <td>{{ getPartyScopeLabel(party.scope) }}</td>
-                    <td>
-                      <span *ngIf="party.scope === 'ASSOCIATION'">{{ party.association?.name || '—' }}</span>
-                      <span *ngIf="party.scope === 'BRANCH'">{{ party.branch?.name || '—' }}</span>
-                      <span *ngIf="party.scope === 'CHAPTER'">{{ party.chapter?.name || '—' }}</span>
-                      <span *ngIf="party.scope === 'NATIONAL'">Nacional</span>
-                    </td>
-                    <td>{{ party.acronym || '—' }}</td>
-                    <td>
-                      <span class="status" [class.active]="party.isActive">{{
-                        party.isActive ? 'Activo' : 'Inactivo'
-                      }}</span>
-                    </td>
-                    <td class="col-actions">
-                      <div class="actions">
-                        <button class="btn ghost" (click)="editParty(party)">Editar</button>
-                        <button class="btn danger" (click)="deleteParty(party)">Eliminar</button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <div class="table-footer">
-                <button class="btn ghost" (click)="changePage(partyPage, partyPages(), -1)">Anterior</button>
-                <span>Página {{ partyPage() + 1 }} de {{ partyPages() }}</span>
-                <button class="btn ghost" (click)="changePage(partyPage, partyPages(), 1)">Siguiente</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="card span-4">
-            <div class="card-header">
-              <div>
-                <h3>{{ editingPartyId ? 'Editar partido' : 'Nuevo partido' }}</h3>
-                <p>Registra el partido en el padrón.</p>
-              </div>
-              <button class="btn ghost" *ngIf="editingPartyId" (click)="resetPartyForm()">Cancelar</button>
-            </div>
-            <div class="card-body">
-              <form [formGroup]="partyForm" (ngSubmit)="saveParty()">
-                <div class="form-group">
-                  <label>Nombre</label>
-                  <input class="form-control" formControlName="name" />
-                </div>
-                <div class="form-group">
-                  <label>Scope</label>
-                  <select class="form-control" formControlName="scope" (change)="onPartyScopeChange()">
-                    <option value="ASSOCIATION">Asociación</option>
-                    <option value="BRANCH">Sede</option>
-                    <option value="CHAPTER">Capítulo</option>
-                  </select>
-                </div>
-                <div class="form-group" *ngIf="partyForm.controls.scope.value === 'ASSOCIATION'">
-                  <label>Asociación</label>
-                  <select
-                    class="form-control"
-                    formControlName="associationId"
-                    (change)="onPartyAssociationChange(($any($event.target)).value)"
-                  >
-                    <option value="">Selecciona</option>
-                    <option *ngFor="let association of associations()" [value]="association.id">
-                      {{ association.name }}
-                    </option>
-                  </select>
-                </div>
-                <div class="form-group" *ngIf="partyForm.controls.scope.value === 'BRANCH'">
-                  <label>Asociación</label>
-                  <select
-                    class="form-control"
-                    [value]="partyAssociationFilter()"
-                    (change)="onPartyAssociationChange(($any($event.target)).value)"
-                  >
-                    <option value="">Todas</option>
-                    <option *ngFor="let association of associations()" [value]="association.id">
-                      {{ association.name }}
-                    </option>
-                  </select>
-                </div>
-                <div class="form-group" *ngIf="partyForm.controls.scope.value === 'BRANCH'">
-                  <label>Sede</label>
-                  <select
-                    class="form-control"
-                    formControlName="branchId"
-                    (change)="onPartyBranchChange(($any($event.target)).value)"
-                  >
-                    <option value="">Selecciona</option>
-                    <option *ngFor="let branch of partyBranchesForAssociation()" [value]="branch.id">
-                      {{ branch.name }}
-                    </option>
-                  </select>
-                </div>
-                <div class="form-group" *ngIf="partyForm.controls.scope.value === 'CHAPTER'">
-                  <label>Asociación</label>
-                  <select
-                    class="form-control"
-                    [value]="partyAssociationFilter()"
-                    (change)="onPartyAssociationChange(($any($event.target)).value)"
-                  >
-                    <option value="">Todas</option>
-                    <option *ngFor="let association of associations()" [value]="association.id">
-                      {{ association.name }}
-                    </option>
-                  </select>
-                </div>
-                <div class="form-group" *ngIf="partyForm.controls.scope.value === 'CHAPTER'">
-                  <label>Sede</label>
-                  <select
-                    class="form-control"
-                    formControlName="branchId"
-                    (change)="onPartyBranchChange(($any($event.target)).value)"
-                  >
-                    <option value="">Selecciona</option>
-                    <option *ngFor="let branch of partyBranchesForAssociation()" [value]="branch.id">
-                      {{ branch.name }}
-                    </option>
-                  </select>
-                </div>
-                <div class="form-group" *ngIf="partyForm.controls.scope.value === 'CHAPTER'">
-                  <label>Capítulo</label>
-                  <select
-                    class="form-control"
-                    formControlName="chapterId"
-                    [disabled]="!partyChaptersAvailable()"
-                  >
-                    <option value="">Selecciona</option>
-                    <option *ngFor="let chapter of partyChaptersForBranch()" [value]="chapter.id">
-                      {{ chapter.name }}
-                    </option>
-                  </select>
-                </div>
-                <p class="alert" *ngIf="partyScopeNotice()">{{ partyScopeNotice() }}</p>
-                <div class="form-group">
-                  <label>Sigla</label>
-                  <input class="form-control" formControlName="acronym" />
-                </div>
-                <div class="form-group inline">
-                  <label>Activo</label>
-                  <label class="switch">
-                    <input type="checkbox" formControlName="isActive" />
-                    <span class="slider"></span>
-                  </label>
-                </div>
-                <button class="btn primary" type="submit">
-                  {{ editingPartyId ? 'Guardar cambios' : 'Crear partido' }}
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-
-        <!-- AUDIT -->
-        <div class="grid" *ngIf="activeSection === 'audit' && canAccessSection('audit')">
-          <div class="card span-12">
-            <div class="card-header">
-              <div>
-                <h3>Bitácora de auditoría</h3>
-                <p>Últimos eventos registrados.</p>
-              </div>
-              <input
-                class="form-control"
-                placeholder="Buscar por acción o entidad"
-                [value]="auditFilter()"
-                (input)="auditFilter.set(($any($event.target)).value)"
-              />
-            </div>
-            <div class="card-body">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>Fecha</th>
-                    <th>Acción</th>
-                    <th>Entidad</th>
-                    <th>Usuario</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let log of pagedAudit()">
-                    <td>{{ log.createdAt | date: 'short' }}</td>
-                    <td>{{ log.action }}</td>
-                    <td>{{ log.entity }}</td>
-                    <td>
-                      {{
-                        log.user
-                          ? log.user.dni + ' - ' + log.user.firstName + ' ' + log.user.lastName
-                          : 'Sistema'
-                      }}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <div class="table-footer">
-                <button class="btn ghost" (click)="changePage(auditPage, auditPages(), -1)">Anterior</button>
-                <span>Página {{ auditPage() + 1 }} de {{ auditPages() }}</span>
-                <button class="btn ghost" (click)="changePage(auditPage, auditPages(), 1)">Siguiente</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid" *ngIf="activeSection === 'padron' && canAccessSection('padron')">
-          <div class="card span-6">
-            <div class="card-header">
-              <div>
-                <h3>Importar padrón</h3>
-                <p>Alta y actualización masiva desde XLSX.</p>
-              </div>
-            </div>
-            <div class="card-body">
-              <div class="form-group">
-                <label>Archivo XLSX</label>
-                <input type="file" accept=".xlsx" (change)="onPadronFileChange($event, 'import')" />
-              </div>
-              <button class="btn primary" (click)="uploadPadron('import')">Procesar importación</button>
-              <div class="preview" *ngIf="padronImportPreview().length">
-                <div class="preview-header">
-                  <strong>Vista previa</strong>
-                  <span *ngIf="padronImportPreviewNote()">{{ padronImportPreviewNote() }}</span>
-                </div>
-                <table class="table preview-table">
-                  <thead>
-                    <tr>
-                      <th>DNI</th>
-                      <th>Nombre</th>
-                      <th>Capítulo</th>
-                      <th>Sede</th>
-                      <th>Pagos al día</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let row of padronImportPreview()">
-                      <td>{{ row.dni }}</td>
-                      <td>{{ row.firstName }} {{ row.lastName }}</td>
-                      <td>{{ row.chapterName }}</td>
-                      <td>{{ row.branchName }}</td>
-                      <td>{{ row.isPaidUp }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <div class="card span-6">
-            <div class="card-header">
-              <div>
-                <h3>Deshabilitar padrón</h3>
-                <p>Desactiva usuarios según XLSX.</p>
-              </div>
-            </div>
-            <div class="card-body">
-              <div class="form-group">
-                <label>Archivo XLSX</label>
-                <input type="file" accept=".xlsx" (change)="onPadronFileChange($event, 'disable')" />
-              </div>
-              <button class="btn danger" (click)="uploadPadron('disable')">Procesar deshabilitación</button>
-              <div class="preview" *ngIf="padronDisablePreview().length">
-                <div class="preview-header">
-                  <strong>Vista previa</strong>
-                  <span *ngIf="padronDisablePreviewNote()">{{ padronDisablePreviewNote() }}</span>
-                </div>
-                <table class="table preview-table">
-                  <thead>
-                    <tr>
-                      <th>DNI</th>
-                      <th>Nombre</th>
-                      <th>Capítulo</th>
-                      <th>Sede</th>
-                      <th>Pagos al día</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let row of padronDisablePreview()">
-                      <td>{{ row.dni }}</td>
-                      <td>{{ row.firstName }} {{ row.lastName }}</td>
-                      <td>{{ row.chapterName }}</td>
-                      <td>{{ row.branchName }}</td>
-                      <td>{{ row.isPaidUp }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
+        <router-outlet></router-outlet>
       </section>
     </div>
   </div>
 
-  <div class="modal-overlay" *ngIf="showPadronResultModal()" (click)="closePadronModal()">
-    <div class="modal-card" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <div>
-          <h3>{{ padronModalTitle() }}</h3>
-          <p>{{ padronModalSummary() }}</p>
-        </div>
-        <button class="btn ghost" (click)="closePadronModal()">Cerrar</button>
-      </div>
-      <div class="modal-body">
-        <div class="modal-grid">
-          <div class="modal-section">
-            <h4>Creado</h4>
-            <p>{{ padronModalStats().created }} registros</p>
-          </div>
-          <div class="modal-section">
-            <h4>Actualizado</h4>
-            <p>{{ padronModalStats().updated }} registros</p>
-          </div>
-          <div class="modal-section">
-            <h4>Deshabilitado</h4>
-            <p>{{ padronModalStats().disabled }} registros</p>
-          </div>
-          <div class="modal-section">
-            <h4>Omitido</h4>
-            <p>{{ padronModalStats().skipped }} registros</p>
-            <p *ngIf="padronModalRejected()" class="modal-note">{{ padronModalRejected() }}</p>
-            <ul *ngIf="padronModalOmitted().length" class="modal-list">
-              <li *ngFor="let detail of padronModalOmitted()">{{ detail }}</li>
-            </ul>
-            <p *ngIf="!padronModalOmitted().length" class="modal-note">Sin omisiones adicionales.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <div class="sidebar-overlay" *ngIf="!sidebarCollapsed()" (click)="closeSidebar()"></div>
 </ion-content>

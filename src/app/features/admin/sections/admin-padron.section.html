@@ -1,0 +1,80 @@
+<div class="grid">
+  <div class="card span-12">
+    <div class="card-header">
+      <div>
+        <h3>Importar padrón</h3>
+        <p>Alta y actualización masiva desde XLSX.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="form-group">
+        <label>Archivo XLSX</label>
+        <input type="file" accept=".xlsx" (change)="onPadronFileChange($event)" />
+      </div>
+      <button class="btn primary" (click)="uploadPadron()">Procesar importación</button>
+      <div class="preview" *ngIf="padronImportPreview().length">
+        <div class="preview-header">
+          <strong>Vista previa</strong>
+          <span *ngIf="padronImportPreviewNote()">{{ padronImportPreviewNote() }}</span>
+        </div>
+        <table class="table preview-table">
+          <thead>
+            <tr>
+              <th>DNI</th>
+              <th>Nombre</th>
+              <th>Capítulo</th>
+              <th>Sede</th>
+              <th>Pagos al día</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of padronImportPreview()">
+              <td>{{ row.dni }}</td>
+              <td>{{ row.firstName }} {{ row.lastName }}</td>
+              <td>{{ row.chapterName }}</td>
+              <td>{{ row.branchName }}</td>
+              <td>{{ row.isPaidUp }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showPadronResultModal()" (click)="closePadronModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <h3>{{ padronModalTitle() }}</h3>
+        <p>{{ padronModalSummary() }}</p>
+      </div>
+      <button class="btn ghost" (click)="closePadronModal()">Cerrar</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-grid">
+        <div class="modal-section">
+          <h4>Creado</h4>
+          <p>{{ padronModalStats().created }} registros</p>
+        </div>
+        <div class="modal-section">
+          <h4>Actualizado</h4>
+          <p>{{ padronModalStats().updated }} registros</p>
+        </div>
+        <div class="modal-section">
+          <h4>Deshabilitado</h4>
+          <p>{{ padronModalStats().disabled }} registros</p>
+        </div>
+        <div class="modal-section">
+          <h4>Omitido</h4>
+          <p>{{ padronModalStats().skipped }} registros</p>
+          <p *ngIf="padronModalRejected()" class="modal-note">{{ padronModalRejected() }}</p>
+          <ul *ngIf="padronModalOmitted().length" class="modal-list">
+            <li *ngFor="let detail of padronModalOmitted()">{{ detail }}</li>
+          </ul>
+          <p *ngIf="!padronModalOmitted().length" class="modal-note">Sin omisiones adicionales.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

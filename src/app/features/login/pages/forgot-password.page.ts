@@ -1,23 +1,23 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Router } from '@angular/router';
 import { IonContent, ToastController } from '@ionic/angular/standalone';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
-  selector: 'app-login',
-  templateUrl: 'login.page.html',
-  styleUrls: ['login.page.scss'],
-  imports: [CommonModule, IonContent, ReactiveFormsModule, RouterModule],
+  selector: 'app-forgot-password',
+  templateUrl: 'forgot-password.page.html',
+  styleUrls: ['forgot-password.page.scss'],
+  imports: [CommonModule, IonContent, ReactiveFormsModule],
 })
-export class LoginPage {
+export class ForgotPasswordPage {
   readonly form = this.fb.nonNullable.group({
     dni: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
-    password: ['', [Validators.required]],
   });
   isSubmitting = false;
+  statusMessage = '';
 
   constructor(
     private fb: FormBuilder,
@@ -32,10 +32,11 @@ export class LoginPage {
       return;
     }
     this.isSubmitting = true;
-    const { dni, password } = this.form.getRawValue();
+    this.statusMessage = '';
+    const { dni } = this.form.getRawValue();
     try {
-      await firstValueFrom(this.authService.login({ dni, password }));
-      await this.router.navigateByUrl('/admin', { replaceUrl: true });
+      await firstValueFrom(this.authService.requestPasswordReset({ dni }));
+      this.statusMessage = 'Si el usuario existe, recibirás un correo con las instrucciones.';
     } catch (error) {
       const rawMessage = (error as { error?: { message?: string | string[] } })?.error?.message;
       const message =
@@ -43,7 +44,7 @@ export class LoginPage {
           ? rawMessage
           : Array.isArray(rawMessage)
             ? rawMessage.join(', ')
-            : 'No se pudo iniciar sesión. Intenta nuevamente.';
+            : 'No se pudo procesar la solicitud.';
       const toast = await this.toastController.create({
         message,
         duration: 3000,
@@ -53,5 +54,9 @@ export class LoginPage {
     } finally {
       this.isSubmitting = false;
     }
+  }
+
+  async goBack(): Promise<void> {
+    await this.router.navigateByUrl('/login');
   }
 }

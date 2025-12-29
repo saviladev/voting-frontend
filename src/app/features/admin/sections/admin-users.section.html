@@ -1,0 +1,179 @@
+<div class="grid">
+  <div class="card span-8">
+    <div class="card-header">
+      <div>
+        <h3>Usuarios registrados</h3>
+        <p>Lista completa con roles y capítulo asignado.</p>
+      </div>
+      <div class="filter-row">
+        <select
+          class="form-control"
+          [value]="userStatusFilter()"
+          (change)="userStatusFilter.set(($any($event.target)).value)"
+        >
+          <option value="ALL">Estado: Todos</option>
+          <option value="ACTIVE">Estado: Activo</option>
+          <option value="INACTIVE">Estado: Inactivo</option>
+        </select>
+        <select
+          class="form-control"
+          [value]="userChapterFilter()"
+          (change)="userChapterFilter.set(($any($event.target)).value)"
+        >
+          <option value="">Capítulo: Todos</option>
+          <option *ngFor="let chapter of chapters()" [value]="chapter.id">{{ chapter.name }}</option>
+        </select>
+        <input
+          class="form-control"
+          placeholder="Buscar por DNI, nombre o correo"
+          [value]="userFilter()"
+          (input)="userFilter.set(($any($event.target)).value)"
+        />
+      </div>
+    </div>
+    <div class="card-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>DNI</th>
+            <th>Nombre</th>
+            <th>Capítulo</th>
+            <th>Roles</th>
+            <th>Estado</th>
+            <th class="col-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of pagedUsers()">
+            <td>{{ user.dni }}</td>
+            <td>{{ user.firstName }} {{ user.lastName }}</td>
+            <td>
+              {{ user.chapter?.name }}
+              <small>
+                {{ user.chapter?.branch?.name }}
+                <span *ngIf="user.chapter?.specialties?.length">
+                  ·
+                  <span *ngFor="let specialty of user.chapter?.specialties; let last = last">
+                    {{ specialty.specialty?.name }}<span *ngIf="!last">, </span>
+                  </span>
+                </span>
+              </small>
+            </td>
+            <td>
+              <span class="badge" *ngFor="let role of user.roles">{{ role.role.name }}</span>
+            </td>
+            <td>
+              <span class="status" [class.active]="user.isActive">{{
+                user.isActive ? 'Activo' : 'Inactivo'
+              }}</span>
+            </td>
+            <td class="col-actions">
+              <div class="actions">
+                <button class="btn ghost" (click)="editUser(user)">Editar</button>
+                <button class="btn danger" (click)="deleteUser(user)">Eliminar</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="table-footer">
+        <button class="btn ghost" (click)="changePage(userPage, userPages(), -1)">Anterior</button>
+        <span>Página {{ userPage() + 1 }} de {{ userPages() }}</span>
+        <button class="btn ghost" (click)="changePage(userPage, userPages(), 1)">Siguiente</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card span-4">
+    <div class="card-header">
+      <div>
+        <h3>{{ editingUserId ? 'Editar usuario' : 'Nuevo usuario' }}</h3>
+        <p>Completa los datos del colegiado.</p>
+      </div>
+      <button class="btn ghost" *ngIf="editingUserId" (click)="resetUserForm()">Cancelar</button>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="userForm" (ngSubmit)="saveUser()">
+        <div class="form-group">
+          <label>DNI</label>
+          <input
+            class="form-control"
+            formControlName="dni"
+            placeholder="00000000"
+            inputmode="numeric"
+            maxlength="8"
+            (input)="onDniInput($event)"
+          />
+          <small class="helper" *ngIf="editingUserId">El DNI no se puede modificar.</small>
+        </div>
+        <div class="form-group">
+          <label>Contraseña</label>
+          <input class="form-control" formControlName="password" type="password" />
+        </div>
+        <div class="form-group">
+          <label>Nombres</label>
+          <input class="form-control" formControlName="firstName" />
+        </div>
+        <div class="form-group">
+          <label>Apellidos</label>
+          <input class="form-control" formControlName="lastName" />
+        </div>
+        <div class="form-group">
+          <label>Teléfono</label>
+          <input class="form-control" formControlName="phone" />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input class="form-control" formControlName="email" />
+        </div>
+        <div class="form-group">
+          <label>Capítulo</label>
+          <select class="form-control" formControlName="associationId" (change)="onUserAssociationChange(($any($event.target)).value)">
+            <option value="">Selecciona asociación</option>
+            <option *ngFor="let association of associations()" [value]="association.id">
+              {{ association.name }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Sede</label>
+          <select class="form-control" formControlName="branchId" (change)="onUserBranchChange(($any($event.target)).value)">
+            <option value="">
+              {{ userForm.controls.associationId.value ? 'Selecciona sede' : 'Selecciona asociación primero' }}
+            </option>
+            <option *ngFor="let branch of branchesForUserAssociation()" [value]="branch.id">
+              {{ branch.name }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Capítulo</label>
+          <select class="form-control" formControlName="chapterId">
+            <option value="">
+              {{ userForm.controls.branchId.value ? 'Selecciona capítulo' : 'Selecciona sede primero' }}
+            </option>
+            <option *ngFor="let chapter of chaptersForUserBranch()" [value]="chapter.id">
+              {{ chapter.name }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Roles</label>
+          <select class="form-control" formControlName="roles" multiple>
+            <option *ngFor="let role of roles()" [value]="role.name">{{ role.name }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Activo</label>
+          <label class="switch">
+            <input type="checkbox" formControlName="isActive" />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <button class="btn primary" type="submit">
+          {{ editingUserId ? 'Guardar cambios' : 'Crear usuario' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

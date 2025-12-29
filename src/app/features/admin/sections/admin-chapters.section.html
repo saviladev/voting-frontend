@@ -1,0 +1,174 @@
+<div class="grid">
+  <div class="card span-8">
+    <div class="card-header">
+      <div>
+        <h3>Capítulos</h3>
+        <p>Capítulos asociados a sedes.</p>
+      </div>
+      <div class="filter-row">
+        <select
+          class="form-control"
+          [value]="chapterAssociationFilter()"
+          (change)="onChapterAssociationFilterChange(($any($event.target)).value)"
+        >
+          <option value="">Asociación: Todas</option>
+          <option *ngFor="let association of associations()" [value]="association.id">
+            {{ association.name }}
+          </option>
+        </select>
+        <select
+          class="form-control"
+          [value]="chapterBranchFilter()"
+          (change)="chapterBranchFilter.set(($any($event.target)).value)"
+        >
+          <option value="">Sede: Todas</option>
+          <option *ngFor="let branch of branchesForChapterAssociation()" [value]="branch.id">
+            {{ branch.name }}
+          </option>
+        </select>
+        <select
+          class="form-control"
+          [value]="chapterSpecialtyFilter()"
+          (change)="chapterSpecialtyFilter.set(($any($event.target)).value)"
+        >
+          <option value="">Especialidad: Todas</option>
+          <option *ngFor="let specialty of specialtiesForChapterFilter()" [value]="specialty.id">
+            {{ specialty.name }}
+          </option>
+        </select>
+        <input
+          class="form-control"
+          placeholder="Buscar capítulo"
+          [value]="chapterFilter()"
+          (input)="chapterFilter.set(($any($event.target)).value)"
+        />
+      </div>
+    </div>
+    <div class="card-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Capítulo</th>
+            <th>Sede</th>
+            <th>Especialidad</th>
+            <th class="col-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let chapter of pagedChapters()">
+            <td>{{ chapter.name }}</td>
+            <td>{{ chapter.branch?.name }}</td>
+            <td>
+              <span class="badge" *ngFor="let specialty of chapter.specialties">
+                {{ specialty.specialty?.name }}
+              </span>
+            </td>
+            <td class="col-actions">
+              <div class="actions">
+                <button class="btn ghost" (click)="editChapter(chapter)">Editar</button>
+                <button class="btn danger" (click)="deleteChapter(chapter)">Eliminar</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="table-footer">
+        <button class="btn ghost" (click)="changePage(chapterPage, chapterPages(), -1)">Anterior</button>
+        <span>Página {{ chapterPage() + 1 }} de {{ chapterPages() }}</span>
+        <button class="btn ghost" (click)="changePage(chapterPage, chapterPages(), 1)">Siguiente</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card span-4">
+    <div class="card-header">
+      <div>
+        <h3>{{ editingChapterId ? 'Editar capítulo' : 'Nuevo capítulo' }}</h3>
+        <p>Combina sede + especialidades.</p>
+      </div>
+      <button class="btn ghost" *ngIf="editingChapterId" (click)="resetChapterForm()">Cancelar</button>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="chapterForm" (ngSubmit)="saveChapter()">
+        <div class="form-group">
+          <label>Asociación</label>
+          <select
+            class="form-control"
+            [value]="chapterAssociationFilter()"
+            (change)="onChapterAssociationChange(($any($event.target)).value)"
+          >
+            <option value="">Selecciona</option>
+            <option *ngFor="let association of associations()" [value]="association.id">
+              {{ association.name }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Sede</label>
+          <select
+            class="form-control"
+            formControlName="branchId"
+            (change)="onChapterBranchChange(($any($event.target)).value)"
+            [disabled]="!chapterAssociationFilter()"
+          >
+            <option value="">
+              {{ chapterAssociationFilter() ? 'Selecciona' : 'Selecciona asociación primero' }}
+            </option>
+            <option *ngFor="let branch of branchesForChapterAssociation()" [value]="branch.id">
+              {{ branch.name }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Especialidades</label>
+          <div class="chip-select" #chapterSpecialtiesSelect [class.open]="chapterSpecialtiesOpen()">
+            <button
+              class="chip-select-trigger"
+              type="button"
+              (click)="toggleChapterSpecialtiesDropdown()"
+              [disabled]="!chapterAssociationFilter() || !chapterFormBranchId()"
+            >
+              <span *ngIf="selectedChapterSpecialties().length; else specialtyPlaceholder">
+                {{ selectedChapterSpecialties().length }} seleccionadas
+              </span>
+              <ng-template #specialtyPlaceholder>
+                {{
+                  chapterAssociationFilter()
+                    ? (chapterFormBranchId() ? 'Selecciona especialidades' : 'Selecciona sede primero')
+                    : 'Selecciona asociación primero'
+                }}
+              </ng-template>
+            </button>
+            <div class="chip-select-menu">
+              <button
+                class="chip-option"
+                type="button"
+                *ngFor="let specialty of specialtiesForChapter()"
+                (click)="toggleChapterSpecialtySelection(specialty.id)"
+              >
+                <span
+                  class="chip-option-box"
+                  [class.checked]="chapterFormSpecialtyIds().includes(specialty.id)"
+                ></span>
+                <span>{{ specialty.name }}</span>
+              </button>
+            </div>
+          </div>
+          <div class="chip-row" *ngIf="selectedChapterSpecialties().length">
+            <span class="chip" *ngFor="let specialty of selectedChapterSpecialties()">
+              {{ specialty.name }}
+              <button type="button" class="chip-remove" (click)="removeChapterSpecialty(specialty.id)">×</button>
+            </span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Nombre de capítulo</label>
+          <input class="form-control" formControlName="name" />
+        </div>
+        <button class="btn primary" type="submit">
+          {{ editingChapterId ? 'Guardar cambios' : 'Crear capítulo' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

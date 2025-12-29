@@ -1,5 +1,6 @@
 .adminlte {
   --sidebar-width: 260px;
+  --sidebar-collapsed-width: 68px;
   --admin-bg: #f4f6f9;
   --admin-card: #ffffff;
   --admin-ink: #2f3542;
@@ -19,6 +20,10 @@
   background: var(--admin-bg);
 }
 
+.adminlte-shell.sidebar-collapsed {
+  grid-template-columns: var(--sidebar-collapsed-width) 1fr;
+}
+
 .sidebar {
   background: var(--admin-dark);
   color: #ecf0f1;
@@ -28,6 +33,8 @@
   position: sticky;
   top: 0;
   height: 100vh;
+  transition: width 0.2s ease, transform 0.2s ease;
+  width: var(--sidebar-width);
 }
 
 .brand {
@@ -35,6 +42,25 @@
   align-items: center;
   gap: 12px;
   margin-bottom: 24px;
+}
+
+.adminlte-shell.sidebar-collapsed .brand {
+  justify-content: center;
+}
+
+.adminlte-shell.sidebar-collapsed .brand-mark,
+.adminlte-shell.sidebar-collapsed .brand-title,
+.adminlte-shell.sidebar-collapsed .brand-subtitle {
+  display: none;
+}
+
+.sidebar-burger {
+  border-color: rgba(236, 240, 241, 0.35);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-burger {
+  color: #ecf0f1;
 }
 
 .brand-mark {
@@ -47,6 +73,12 @@
   display: grid;
   place-items: center;
   letter-spacing: 0.04em;
+}
+
+.adminlte-shell.sidebar-collapsed .brand-mark {
+  width: 36px;
+  height: 36px;
+  font-size: 0.75rem;
 }
 
 .brand-title {
@@ -67,6 +99,10 @@
   background: rgba(255, 255, 255, 0.06);
   border-radius: 12px;
   margin-bottom: 20px;
+}
+
+.adminlte-shell.sidebar-collapsed .user-panel {
+  display: none;
 }
 
 .user-avatar {
@@ -114,6 +150,56 @@
   border-radius: 10px;
   cursor: pointer;
   font-weight: 500;
+  text-decoration: none;
+  display: block;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.75rem;
+  display: grid;
+  place-items: center;
+}
+
+.nav-label {
+  white-space: nowrap;
+}
+
+.adminlte-shell.sidebar-collapsed .nav-label,
+.adminlte-shell.sidebar-collapsed .nav-section,
+.adminlte-shell.sidebar-collapsed .user-name,
+.adminlte-shell.sidebar-collapsed .user-role,
+.adminlte-shell.sidebar-collapsed .sidebar-footer {
+  display: none;
+}
+
+.adminlte-shell.sidebar-collapsed .nav {
+  align-items: center;
+}
+
+.adminlte-shell.sidebar-collapsed .nav-link {
+  justify-content: center;
+  padding: 10px;
+}
+
+.adminlte-shell.sidebar-collapsed .sidebar {
+  width: var(--sidebar-collapsed-width);
+  padding: 18px 10px;
+}
+
+.adminlte-shell.sidebar-collapsed .burger {
+  margin: 0 auto;
 }
 
 .nav-link.active,
@@ -164,9 +250,33 @@
 .topbar {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 24px;
   margin-bottom: 28px;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.burger {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-card);
+  padding: 0;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+.burger-icon {
+  width: 24px;
+  height: 24px;
 }
 
 .topbar h1 {
@@ -626,6 +736,18 @@
   font-size: 0.75rem;
 }
 
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 20, 28, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 11;
+}
+
+
 @media (prefers-color-scheme: dark) {
   .adminlte {
     --admin-bg: #141b24;
@@ -703,8 +825,26 @@
   }
 
   .sidebar {
-    position: static;
-    height: auto;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    transform: translateX(0);
+    z-index: 12;
+    width: 100%;
+  }
+
+  .adminlte-shell.sidebar-collapsed .sidebar {
+    width: var(--sidebar-collapsed-width);
+  }
+
+  .adminlte-shell.sidebar-collapsed .main {
+    margin-left: var(--sidebar-collapsed-width);
+  }
+
+  .burger {
+    align-items: center;
+    justify-content: center;
   }
 
   .grid {
@@ -716,5 +856,13 @@
   .span-4,
   .span-12 {
     grid-column: span 1;
+  }
+  .sidebar-overlay {
+    display: block;
+  }
+
+  .adminlte-shell.sidebar-expanded ~ .sidebar-overlay {
+    opacity: 1;
+    pointer-events: auto;
   }
 }

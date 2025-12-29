@@ -1,0 +1,104 @@
+<div class="grid">
+  <div class="card span-8">
+    <div class="card-header">
+      <div>
+        <h3>Roles activos</h3>
+        <p>Roles y permisos asignados.</p>
+      </div>
+      <input
+        class="form-control"
+        placeholder="Buscar rol"
+        [value]="roleFilter()"
+        (input)="roleFilter.set(($any($event.target)).value)"
+      />
+    </div>
+    <div class="card-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Rol</th>
+            <th>Descripción</th>
+            <th>Permisos</th>
+            <th class="col-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let role of pagedRoles()">
+            <td>{{ role.name }}</td>
+            <td>{{ role.description || '—' }}</td>
+            <td>
+              <span class="badge" *ngFor="let permission of role.permissions">
+                {{ permission.permission.key }}
+              </span>
+            </td>
+            <td class="col-actions">
+              <div class="actions">
+                <button class="btn ghost" (click)="editRole(role)">Editar</button>
+                <button class="btn danger" (click)="deleteRole(role)">Eliminar</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="table-footer">
+        <button class="btn ghost" (click)="changePage(rolePage, rolePages(), -1)">Anterior</button>
+        <span>Página {{ rolePage() + 1 }} de {{ rolePages() }}</span>
+        <button class="btn ghost" (click)="changePage(rolePage, rolePages(), 1)">Siguiente</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card span-4">
+    <div class="card-header">
+      <div>
+        <h3>{{ editingRoleId ? 'Editar rol' : 'Nuevo rol' }}</h3>
+        <p>Define nombre y descripción.</p>
+      </div>
+      <button class="btn ghost" *ngIf="editingRoleId" (click)="resetRoleForm()">Cancelar</button>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="roleForm" (ngSubmit)="saveRole()">
+        <div class="form-group">
+          <label>Nombre</label>
+          <input class="form-control" formControlName="name" />
+        </div>
+        <div class="form-group">
+          <label>Descripción</label>
+          <input class="form-control" formControlName="description" />
+        </div>
+        <button class="btn primary" type="submit">
+          {{ editingRoleId ? 'Guardar cambios' : 'Crear rol' }}
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card span-4">
+    <div class="card-header">
+      <div>
+        <h3>Asignar permisos</h3>
+        <p>Reemplaza permisos por rol.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="assignPermissionsForm" (ngSubmit)="replacePermissions()">
+        <div class="form-group">
+          <label>Rol</label>
+          <select class="form-control" formControlName="roleId">
+            <option value="">Selecciona</option>
+            <option *ngFor="let role of roles()" [value]="role.id">{{ role.name }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Permisos</label>
+          <select class="form-control" formControlName="permissions" multiple>
+            <option *ngFor="let permission of permissions()" [value]="permission.key">
+              {{ permission.key }}
+            </option>
+          </select>
+        </div>
+        <button class="btn primary" type="submit">Reemplazar permisos</button>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,73 @@
+<div class="grid">
+  <div class="card span-8">
+    <div class="card-header">
+      <div>
+        <h3>Asociaciones</h3>
+        <p>Colegios profesionales y asociaciones madre.</p>
+      </div>
+      <input
+        class="form-control"
+        placeholder="Buscar asociación"
+        [value]="associationFilter()"
+        (input)="associationFilter.set(($any($event.target)).value)"
+      />
+    </div>
+    <div class="card-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th class="col-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let association of pagedAssociations()">
+            <td>{{ association.name }}</td>
+            <td class="col-actions">
+              <div class="actions">
+                <button class="btn ghost" (click)="editAssociation(association)">Editar</button>
+                <button class="btn danger" (click)="deleteAssociation(association)">Eliminar</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="table-footer">
+        <button class="btn ghost" (click)="changePage(associationPage, associationPages(), -1)">
+          Anterior
+        </button>
+        <span>Página {{ associationPage() + 1 }} de {{ associationPages() }}</span>
+        <button class="btn ghost" (click)="changePage(associationPage, associationPages(), 1)">
+          Siguiente
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card span-4">
+    <div class="card-header">
+      <div>
+        <h3>{{ editingAssociationId ? 'Editar asociación' : 'Nueva asociación' }}</h3>
+        <p>Registra nuevas asociaciones.</p>
+      </div>
+      <button
+        class="btn ghost"
+        *ngIf="editingAssociationId"
+        (click)="resetAssociationForm()"
+      >
+        Cancelar
+      </button>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="associationForm" (ngSubmit)="saveAssociation()">
+        <div class="form-group">
+          <label>Nombre</label>
+          <input class="form-control" formControlName="name" />
+        </div>
+        <button class="btn primary" type="submit">
+          {{ editingAssociationId ? 'Guardar cambios' : 'Crear asociación' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

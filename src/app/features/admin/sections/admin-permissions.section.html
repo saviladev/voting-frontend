@@ -1,0 +1,75 @@
+<div class="grid">
+  <div class="card span-8">
+    <div class="card-header">
+      <div>
+        <h3>Permisos</h3>
+        <p>Catálogo de permisos activos.</p>
+      </div>
+      <input
+        class="form-control"
+        placeholder="Buscar permiso"
+        [value]="permissionFilter()"
+        (input)="permissionFilter.set(($any($event.target)).value)"
+      />
+    </div>
+    <div class="card-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Clave</th>
+            <th>Descripción</th>
+            <th class="col-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let permission of pagedPermissions()">
+            <td>{{ permission.key }}</td>
+            <td>{{ permission.description || '—' }}</td>
+            <td class="col-actions">
+              <div class="actions">
+                <button class="btn ghost" (click)="editPermission(permission)">Editar</button>
+                <button class="btn danger" (click)="deletePermission(permission)">Eliminar</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="table-footer">
+        <button class="btn ghost" (click)="changePage(permissionPage, permissionPages(), -1)">
+          Anterior
+        </button>
+        <span>Página {{ permissionPage() + 1 }} de {{ permissionPages() }}</span>
+        <button class="btn ghost" (click)="changePage(permissionPage, permissionPages(), 1)">
+          Siguiente
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card span-4">
+    <div class="card-header">
+      <div>
+        <h3>{{ editingPermissionId ? 'Editar permiso' : 'Nuevo permiso' }}</h3>
+        <p>Define clave y descripción.</p>
+      </div>
+      <button class="btn ghost" *ngIf="editingPermissionId" (click)="resetPermissionForm()">
+        Cancelar
+      </button>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="permissionForm" (ngSubmit)="savePermission()">
+        <div class="form-group">
+          <label>Clave</label>
+          <input class="form-control" formControlName="key" />
+        </div>
+        <div class="form-group">
+          <label>Descripción</label>
+          <input class="form-control" formControlName="description" />
+        </div>
+        <button class="btn primary" type="submit">
+          {{ editingPermissionId ? 'Guardar cambios' : 'Crear permiso' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

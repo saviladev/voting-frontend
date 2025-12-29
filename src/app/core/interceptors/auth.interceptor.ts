@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
-const AUTH_SCREEN_ENDPOINTS = ['/auth/login'];
+const AUTH_SCREEN_ENDPOINTS = ['/auth/login', '/auth/forgot-password', '/auth/reset-password'];
 const LOGOUT_ENDPOINT = '/auth/logout';
 const SESSION_INVALID_MESSAGES = new Set(['Session expired', 'Invalid session']);
 
