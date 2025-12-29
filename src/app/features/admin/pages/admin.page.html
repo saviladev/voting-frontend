@@ -109,6 +109,16 @@
 
         <div class="nav-section">Política</div>
         <a
+          *ngIf="canAccessSection('elections')"
+          class="nav-link"
+          routerLink="/admin/elections"
+          routerLinkActive="active"
+          >
+          <span class="nav-icon">EL</span>
+          <span class="nav-label">Elecciones</span>
+        </a
+        >
+        <a
           *ngIf="canAccessSection('parties')"
           class="nav-link"
           routerLink="/admin/parties"

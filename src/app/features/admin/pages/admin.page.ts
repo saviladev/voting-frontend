@@ -19,7 +19,8 @@ type AdminSection =
   | 'chapters'
   | 'parties'
   | 'padron'
-  | 'audit';
+  | 'audit'
+  | 'elections';
 
 @Component({
   selector: 'app-admin',
@@ -112,6 +113,7 @@ export class AdminPage implements OnInit {
       parties: 'parties.manage',
       padron: 'padron.manage',
       audit: 'rbac.manage',
+      elections: 'elections.manage',
     };
     const permission = permissionMap[section];
     if (!permission) {

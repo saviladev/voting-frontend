@@ -11,6 +11,8 @@ import { AdminPermissionsSection } from './sections/admin-permissions.section';
 import { AdminRolesSection } from './sections/admin-roles.section';
 import { AdminSpecialtiesSection } from './sections/admin-specialties.section';
 import { AdminUsersSection } from './sections/admin-users.section';
+import { AdminElectionsSection } from './sections/admin-elections.section';
+import { AdminElectionDetailSection } from './sections/admin-election-detail.section';
 
 export const routes: Routes = [
   {
@@ -22,6 +24,16 @@ export const routes: Routes = [
         path: 'home',
         component: AdminHomePage,
         data: { title: 'Inicio', description: 'Resumen general del panel administrativo.' },
+      },
+      {
+        path: 'elections',
+        component: AdminElectionsSection,
+        data: { title: 'Elecciones', description: 'Gestión de procesos electorales.' },
+      },
+      {
+        path: 'elections/:id',
+        component: AdminElectionDetailSection,
+        data: { title: 'Detalle de Elección', description: 'Gestión de listas y candidatos.' },
       },
       {
         path: 'users',

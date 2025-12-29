@@ -32,6 +32,7 @@ export class AdminHomePage {
       users: 'users.manage',
       padron: 'padron.manage',
       parties: 'parties.manage',
+      elections: 'elections.manage',
     };
     const permission = permissionMap[section];
     if (!permission) {

@@ -33,8 +33,18 @@
   position: sticky;
   top: 0;
   height: 100vh;
+  overflow-y: auto;
   transition: width 0.2s ease, transform 0.2s ease;
   width: var(--sidebar-width);
+  
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Hide scrollbar for IE, Edge and Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .brand {
@@ -130,6 +140,17 @@
   flex-direction: column;
   gap: 6px;
   flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Hide scrollbar for IE, Edge and Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .nav-section {
@@ -446,7 +467,7 @@
 }
 
 .slider::before {
-  content: 'X';
+  content: "X";
   position: absolute;
   height: 22px;
   width: 22px;
@@ -468,7 +489,7 @@
 
 .switch input:checked + .slider::before {
   transform: translateX(24px);
-  content: 'V';
+  content: "V";
   color: var(--admin-primary);
 }
 
@@ -746,7 +767,6 @@
   transition: opacity 0.2s ease;
   z-index: 11;
 }
-
 
 @media (prefers-color-scheme: dark) {
   .adminlte {

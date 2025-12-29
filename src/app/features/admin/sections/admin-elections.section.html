@@ -1,0 +1,165 @@
+<div class="grid">
+  <div class="card span-8">
+    <div class="card-header">
+      <div>
+        <h3>Elecciones</h3>
+        <p>Gestión de procesos electorales.</p>
+      </div>
+      <div class="filter-row">
+        <select
+          class="form-control"
+          [value]="electionStatusFilter()"
+          (change)="electionStatusFilter.set(($any($event.target)).value)"
+        >
+          <option value="ALL">Estado: Todos</option>
+          <option value="DRAFT">Borrador</option>
+          <option value="OPEN">Abierta</option>
+          <option value="CLOSED">Cerrada</option>
+          <option value="COMPLETED">Completada</option>
+        </select>
+        <input
+          class="form-control"
+          placeholder="Buscar elección"
+          [value]="electionFilter()"
+          (input)="electionFilter.set(($any($event.target)).value)"
+        />
+      </div>
+    </div>
+    <div class="card-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Alcance</th>
+            <th>Fechas</th>
+            <th>Estado</th>
+            <th class="col-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let election of pagedElections()">
+            <td>
+                <div style="font-weight: 500;">{{ election.name }}</div>
+                <small class="text-muted">
+                    {{ election.association?.name }}
+                    <span *ngIf="election.branch"> / {{ election.branch!.name }}</span>
+                    <span *ngIf="election.chapter"> / {{ election.chapter!.name }}</span>
+                </small>
+            </td>
+            <td>{{ getScopeLabel(election.scope) }}</td>
+            <td>
+                <div style="font-size: 0.85em;">
+                    <div>In: {{ election.startDate | date:'shortDate' }}</div>
+                    <div>Fn: {{ election.endDate | date:'shortDate' }}</div>
+                </div>
+            </td>
+            <td>
+              <span class="status" [class.active]="election.status === 'OPEN'">
+                {{ getStatusLabel(election.status) }}
+              </span>
+            </td>
+            <td class="col-actions">
+              <div class="actions">
+                <button class="btn ghost" (click)="viewDetails(election)">Gestionar</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="table-footer">
+        <button class="btn ghost" (click)="changePage(electionPage, electionPages(), -1)">Anterior</button>
+        <span>Página {{ electionPage() + 1 }} de {{ electionPages() }}</span>
+        <button class="btn ghost" (click)="changePage(electionPage, electionPages(), 1)">Siguiente</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card span-4">
+    <div class="card-header">
+      <div>
+        <h3>Nueva Elección</h3>
+        <p>Define un nuevo proceso electoral.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="electionForm" (ngSubmit)="createElection()">
+        <div class="form-group">
+          <label>Nombre del proceso</label>
+          <input class="form-control" formControlName="name" placeholder="Ej: Elecciones Generales 2025" />
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group span-6">
+                <label>Fecha Inicio</label>
+                <input type="datetime-local" class="form-control" formControlName="startDate" />
+            </div>
+            <div class="form-group span-6">
+                <label>Fecha Fin</label>
+                <input type="datetime-local" class="form-control" formControlName="endDate" />
+            </div>
+        </div>
+
+        <div class="form-group">
+          <label>Alcance</label>
+          <select class="form-control" formControlName="scope" (change)="onScopeChange()">
+            <option *ngFor="let scope of electionScopes" [value]="scope">{{ getScopeLabel(scope) }}</option>
+          </select>
+          <small class="helper" *ngIf="scopeNotice()">{{ scopeNotice() }}</small>
+        </div>
+        
+        <!-- Hierarchy Selectors -->
+        <div class="form-group">
+            <label>Asociación</label>
+            <select
+                class="form-control"
+                formControlName="associationId"
+                (change)="onAssociationChange()"
+            >
+                <option value="">Selecciona</option>
+                <option *ngFor="let association of associations()" [value]="association.id">
+                {{ association.name }}
+                </option>
+            </select>
+        </div>
+        
+        <div class="form-group" *ngIf="electionForm.controls.scope.value === 'BRANCH' || electionForm.controls.scope.value === 'CHAPTER'">
+            <label>Sede</label>
+            <select
+                class="form-control"
+                formControlName="branchId"
+                (change)="onBranchChange()"
+            >
+                <option value="">Selecciona</option>
+                <option *ngFor="let branch of branchesForAssociation()" [value]="branch.id">
+                {{ branch.name }}
+                </option>
+            </select>
+        </div>
+
+        <div class="form-group" *ngIf="electionForm.controls.scope.value === 'CHAPTER'">
+            <label>Capítulo</label>
+            <select class="form-control" formControlName="chapterId">
+                <option value="">Selecciona</option>
+                <option *ngFor="let chapter of chaptersForBranch()" [value]="chapter.id">
+                {{ chapter.name }}
+                </option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Cargos a elegir (Uno por línea)</label>
+            <textarea class="form-control" rows="5" formControlName="positions" placeholder="Decano&#10;Vicedecano&#10;Tesorero"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Descripción (Opcional)</label>
+            <input class="form-control" formControlName="description" />
+        </div>
+
+        <button class="btn primary full-width" type="submit" [disabled]="electionForm.invalid">
+          Crear Elección
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
