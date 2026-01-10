@@ -77,7 +77,21 @@ export class AdminElectionDetailSection implements OnInit {
 
   async loadParties() {
     try {
-      this.parties.set(await firstValueFrom(this.partiesService.list()));
+      const elec = this.election();
+      if (!elec) {
+        this.parties.set([]);
+        return;
+      }
+      
+      // Filter parties based on election scope
+      const filters = {
+        scope: elec.scope,
+        associationId: elec.associationId,
+        branchId: elec.branchId,
+        chapterId: elec.chapterId,
+      };
+      
+      this.parties.set(await firstValueFrom(this.partiesService.list(filters)));
     } catch (e) {
       console.error('Error loading parties', e);
     }
