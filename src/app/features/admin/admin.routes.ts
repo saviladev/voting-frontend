@@ -13,6 +13,7 @@ import { AdminSpecialtiesSection } from './sections/admin-specialties.section';
 import { AdminUsersSection } from './sections/admin-users.section';
 import { AdminElectionsSection } from './sections/admin-elections.section';
 import { AdminElectionDetailSection } from './sections/admin-election-detail.section';
+import { AdminElectionResultsSection } from './sections/admin-election-results.section';
 
 export const routes: Routes = [
   {
@@ -34,6 +35,11 @@ export const routes: Routes = [
         path: 'elections/:id',
         component: AdminElectionDetailSection,
         data: { title: 'Detalle de Elección', description: 'Gestión de listas y candidatos.' },
+      },
+      {
+        path: 'elections/:id/results',
+        component: AdminElectionResultsSection,
+        data: { title: 'Resultados de Elección', description: 'Visualización y gestión de resultados.' },
       },
       {
         path: 'users',
