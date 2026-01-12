@@ -185,9 +185,10 @@ export class AdminElectionsSection extends AdminListBase implements OnInit {
         await this.notify('Elección creada exitosamente.');
         this.resetForm();
         await this.loadElections();
-    } catch (e) {
+    } catch (e: any) {
         console.error(e);
-        await this.notify('Error al crear la elección', 'danger');
+        const message = e.error?.message || 'Error al crear la elección';
+        await this.notify(Array.isArray(message) ? message[0] : message, 'danger');
     }
   }
 

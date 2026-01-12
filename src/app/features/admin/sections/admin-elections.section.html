@@ -39,19 +39,41 @@
         <tbody>
           <tr *ngFor="let election of pagedElections()">
             <td>
-                <div style="font-weight: 500;">{{ election.name }}</div>
-                <small class="text-muted">
-                    {{ election.association?.name }}
-                    <span *ngIf="election.branch"> / {{ election.branch!.name }}</span>
-                    <span *ngIf="election.chapter"> / {{ election.chapter!.name }}</span>
-                </small>
+              <div style="font-weight: 500">{{ election.name }}</div>
             </td>
-            <td>{{ getScopeLabel(election.scope) }}</td>
             <td>
-                <div style="font-size: 0.85em;">
-                    <div>In: {{ election.startDate | date:'shortDate' }}</div>
-                    <div>Fn: {{ election.endDate | date:'shortDate' }}</div>
+              <ng-container [ngSwitch]="election.scope">
+                <div *ngSwitchCase="'ASSOCIATION'">
+                  <div style="font-weight: 500">
+                    {{ election.association?.name }}
+                  </div>
+                  <small class="text-muted">Asociación</small>
                 </div>
+                <div *ngSwitchCase="'BRANCH'">
+                  <div style="font-weight: 500">
+                    {{ election.association?.name }} - {{ election.branch?.name }}
+                  </div>
+                  <small class="text-muted">Sede</small>
+                </div>
+                <div *ngSwitchCase="'CHAPTER'">
+                  <div style="font-weight: 500">
+                    {{ election.chapter?.name }}
+                  </div>
+                  <small class="text-muted"
+                    >{{ election.association?.name }} -
+                    {{ election.branch?.name }} (Capítulo)</small
+                  >
+                </div>
+                <div *ngSwitchDefault>
+                  {{ getScopeLabel(election.scope) }}
+                </div>
+              </ng-container>
+            </td>
+            <td>
+              <div style="font-size: 0.85em">
+                <div>In: {{ election.startDate | date:'shortDate' }}</div>
+                <div>Fn: {{ election.endDate | date:'shortDate' }}</div>
+              </div>
             </td>
             <td>
               <span class="status" [class.active]="election.status === 'OPEN'">
@@ -60,16 +82,28 @@
             </td>
             <td class="col-actions">
               <div class="actions">
-                <button class="btn ghost" (click)="viewDetails(election)">Gestionar</button>
+                <button class="btn ghost" (click)="viewDetails(election)">
+                  Gestionar
+                </button>
               </div>
             </td>
           </tr>
         </tbody>
       </table>
       <div class="table-footer">
-        <button class="btn ghost" (click)="changePage(electionPage, electionPages(), -1)">Anterior</button>
+        <button
+          class="btn ghost"
+          (click)="changePage(electionPage, electionPages(), -1)"
+        >
+          Anterior
+        </button>
         <span>Página {{ electionPage() + 1 }} de {{ electionPages() }}</span>
-        <button class="btn ghost" (click)="changePage(electionPage, electionPages(), 1)">Siguiente</button>
+        <button
+          class="btn ghost"
+          (click)="changePage(electionPage, electionPages(), 1)"
+        >
+          Siguiente
+        </button>
       </div>
     </div>
   </div>
@@ -85,78 +119,122 @@
       <form [formGroup]="electionForm" (ngSubmit)="createElection()">
         <div class="form-group">
           <label>Nombre del proceso</label>
-          <input class="form-control" formControlName="name" placeholder="Ej: Elecciones Generales 2025" />
+          <input
+            class="form-control"
+            formControlName="name"
+            placeholder="Ej: Elecciones Generales 2025"
+          />
         </div>
-        
+
         <div class="form-row">
-            <div class="form-group span-6">
-                <label>Fecha Inicio</label>
-                <input type="datetime-local" class="form-control" formControlName="startDate" />
-            </div>
-            <div class="form-group span-6">
-                <label>Fecha Fin</label>
-                <input type="datetime-local" class="form-control" formControlName="endDate" />
-            </div>
+          <div class="form-group span-6">
+            <label>Fecha Inicio</label>
+            <input
+              type="datetime-local"
+              class="form-control"
+              formControlName="startDate"
+            />
+          </div>
+          <div class="form-group span-6">
+            <label>Fecha Fin</label>
+            <input
+              type="datetime-local"
+              class="form-control"
+              formControlName="endDate"
+            />
+          </div>
         </div>
 
         <div class="form-group">
           <label>Alcance</label>
-          <select class="form-control" formControlName="scope" (change)="onScopeChange()">
-            <option *ngFor="let scope of electionScopes" [value]="scope">{{ getScopeLabel(scope) }}</option>
+          <select
+            class="form-control"
+            formControlName="scope"
+            (change)="onScopeChange()"
+          >
+            <option *ngFor="let scope of electionScopes" [value]="scope">
+              {{ getScopeLabel(scope) }}
+            </option>
           </select>
-          <small class="helper" *ngIf="scopeNotice()">{{ scopeNotice() }}</small>
+          <small class="helper" *ngIf="scopeNotice()"
+            >{{ scopeNotice() }}</small
+          >
         </div>
-        
+
         <!-- Hierarchy Selectors -->
         <div class="form-group">
-            <label>Asociación</label>
-            <select
-                class="form-control"
-                formControlName="associationId"
-                (change)="onAssociationChange()"
+          <label>Asociación</label>
+          <select
+            class="form-control"
+            formControlName="associationId"
+            (change)="onAssociationChange()"
+          >
+            <option value="">Selecciona</option>
+            <option
+              *ngFor="let association of associations()"
+              [value]="association.id"
             >
-                <option value="">Selecciona</option>
-                <option *ngFor="let association of associations()" [value]="association.id">
-                {{ association.name }}
-                </option>
-            </select>
-        </div>
-        
-        <div class="form-group" *ngIf="electionForm.controls.scope.value === 'BRANCH' || electionForm.controls.scope.value === 'CHAPTER'">
-            <label>Sede</label>
-            <select
-                class="form-control"
-                formControlName="branchId"
-                (change)="onBranchChange()"
-            >
-                <option value="">Selecciona</option>
-                <option *ngFor="let branch of branchesForAssociation()" [value]="branch.id">
-                {{ branch.name }}
-                </option>
-            </select>
+              {{ association.name }}
+            </option>
+          </select>
         </div>
 
-        <div class="form-group" *ngIf="electionForm.controls.scope.value === 'CHAPTER'">
-            <label>Capítulo</label>
-            <select class="form-control" formControlName="chapterId">
-                <option value="">Selecciona</option>
-                <option *ngFor="let chapter of chaptersForBranch()" [value]="chapter.id">
-                {{ chapter.name }}
-                </option>
-            </select>
+        <div
+          class="form-group"
+          *ngIf="electionForm.controls.scope.value === 'BRANCH' || electionForm.controls.scope.value === 'CHAPTER'"
+        >
+          <label>Sede</label>
+          <select
+            class="form-control"
+            formControlName="branchId"
+            (change)="onBranchChange()"
+          >
+            <option value="">Selecciona</option>
+            <option
+              *ngFor="let branch of branchesForAssociation()"
+              [value]="branch.id"
+            >
+              {{ branch.name }}
+            </option>
+          </select>
+        </div>
+
+        <div
+          class="form-group"
+          *ngIf="electionForm.controls.scope.value === 'CHAPTER'"
+        >
+          <label>Capítulo</label>
+          <select class="form-control" formControlName="chapterId">
+            <option value="">Selecciona</option>
+            <option
+              *ngFor="let chapter of chaptersForBranch()"
+              [value]="chapter.id"
+            >
+              {{ chapter.name }}
+            </option>
+          </select>
         </div>
 
         <div class="form-group">
-            <label>Cargos a elegir (Uno por línea)</label>
-            <textarea class="form-control" rows="5" formControlName="positions" placeholder="Decano&#10;Vicedecano&#10;Tesorero"></textarea>
+          <label>Cargos a elegir (Uno por línea)</label>
+          <textarea
+            class="form-control"
+            rows="5"
+            formControlName="positions"
+            placeholder="Decano&#10;Vicedecano&#10;Tesorero"
+          ></textarea>
         </div>
 
         <div class="form-group">
-            <label>Descripción (Opcional)</label>
-            <input class="form-control" formControlName="description" />
+          <label>Descripción (Opcional)</label>
+          <input class="form-control" formControlName="description" />
         </div>
 
-        <button class="btn primary full-width" type="submit" [disabled]="electionForm.invalid">
+        <button
+          class="btn primary full-width"
+          type="submit"
+          [disabled]="electionForm.invalid"
+        >
           Crear Elección
         </button>
       </form>
