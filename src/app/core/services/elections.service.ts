@@ -2,7 +2,16 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { CreateCandidateDto, CreateCandidateListDto, CreateElectionDto, ElectionDto } from '../models/elections.models';
+import {
+  CreateCandidateDto,
+  CreateCandidateListDto,
+  CreateElectionDto,
+  ElectionDto,
+  ElectionResultsDto,
+  ListResultDto,
+  PositionResultDto,
+  UpdateVoteCountDto,
+} from '../models/elections.models';
 
 @Injectable({ providedIn: 'root' })
 export class ElectionsService {
@@ -44,5 +53,25 @@ export class ElectionsService {
 
   deleteCandidate(candidateId: string): Observable<void> {
     return this.http.delete<void>(`${this.apiBaseUrl}/elections/candidates/${candidateId}`);
+  }
+
+  // NEW: Update vote count for a candidate
+  updateCandidateVoteCount(candidateId: string, dto: UpdateVoteCountDto): Observable<any> {
+    return this.http.patch(`${this.apiBaseUrl}/elections/candidates/${candidateId}/vote-count`, dto);
+  }
+
+  // NEW: Get election results
+  getResults(electionId: string): Observable<ElectionResultsDto> {
+    return this.http.get<ElectionResultsDto>(`${this.apiBaseUrl}/elections/${electionId}/results`);
+  }
+
+  // NEW: Get results by position
+  getResultsByPosition(electionId: string): Observable<PositionResultDto[]> {
+    return this.http.get<PositionResultDto[]>(`${this.apiBaseUrl}/elections/${electionId}/results/by-position`);
+  }
+
+  // NEW: Get results by list
+  getResultsByList(electionId: string): Observable<ListResultDto[]> {
+    return this.http.get<ListResultDto[]>(`${this.apiBaseUrl}/elections/${electionId}/results/by-list`);
   }
 }

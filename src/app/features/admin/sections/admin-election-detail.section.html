@@ -17,7 +17,12 @@
                 <strong>Fin:</strong> {{ election()?.endDate | date:'medium' }}
             </div>
         </div>
-        <button class="btn ghost" (click)="toggleEditMode()">Editar Elección</button>
+        <div style="display: flex; gap: 0.5rem;">
+          <a [routerLink]="['/admin/elections', election()!.id, 'results']" class="btn primary">
+            {{ election()!.status === 'COMPLETED' ? 'Ver Resultados' : 'Ingresar Resultados' }}
+          </a>
+          <button class="btn ghost" (click)="toggleEditMode()">Editar Elección</button>
+        </div>
       </div>
 
       <!-- Edit Mode -->

@@ -1,0 +1,320 @@
+<div class="grid">
+  <div class="card span-12" *ngIf="election()">
+    <!-- Header -->
+    <div class="card-header">
+      <div>
+        <h3>{{ election()!.name }}</h3>
+        <p>
+          {{ getScopeLabel(election()!.scope) }} • {{ getStatusLabel(election()!.status) }}
+          <span *ngIf="election()!.association"> • {{ election()!.association!.name }}</span>
+          <span *ngIf="election()!.branch"> / {{ election()!.branch!.name }}</span>
+          <span *ngIf="election()!.chapter"> / {{ election()!.chapter!.name }}</span>
+        </p>
+      </div>
+      <div class="filter-row">
+        <button
+          type="button"
+          class="btn primary"
+          (click)="exportToPDF()"
+          [disabled]="!canViewResults || !results()"
+          *ngIf="viewMode() === 'display'"
+        >
+          Exportar a PDF
+        </button>
+        <button
+          type="button"
+          class="btn ghost"
+          (click)="toggleViewMode()"
+          [disabled]="loading()"
+        >
+          {{ viewMode() === 'entry' ? 'Ver Resultados' : 'Ingresar Votos' }}
+        </button>
+        <a [routerLink]="['/admin/elections', election()!.id]" class="btn ghost">
+          Volver a Detalles
+        </a>
+      </div>
+    </div>
+
+    <!-- Vote Entry Mode -->
+    <div class="card-body" *ngIf="viewMode() === 'entry'">
+      <h4>Ingresar Conteos de Votos</h4>
+      <p class="text-muted">Total de votos ingresados: <strong>{{ totalVotesEntered }}</strong></p>
+
+      <form [formGroup]="voteCountForm" (ngSubmit)="saveVoteCounts()">
+        <div class="grid">
+          <div class="card span-6" *ngFor="let list of election()!.candidateLists">
+            <div class="card-header">
+              <div>
+                <h4 style="margin: 0;">{{ list.name }}</h4>
+                <small class="text-muted">
+                  <span *ngIf="list.number">N° {{ list.number }}</span>
+                  <span *ngIf="list.politicalParty"> • {{ list.politicalParty.name }}</span>
+                </small>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="form-group" *ngFor="let candidate of list.candidates">
+                <label>
+                  <span class="badge">{{ candidate.position?.title }}</span>
+                  {{ candidate.firstName }} {{ candidate.lastName }}
+                </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  [formControlName]="candidate.id"
+                  min="0"
+                  step="1"
+                  placeholder="Votos"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem;">
+          <button type="button" class="btn ghost" (click)="cancelVoteEntry()" [disabled]="loading()">
+            Cancelar
+          </button>
+          <button type="submit" class="btn primary" [disabled]="loading() || voteCountForm.invalid">
+            {{ loading() ? 'Guardando...' : 'Guardar Conteos' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Results Display Mode -->
+    <div class="card-body" *ngIf="viewMode() === 'display'">
+      <!-- Warning if not completed -->
+      <div *ngIf="!canViewResults" style="padding: 1rem; background: var(--ion-color-danger); border: 1px solid var(--ion-color-danger); border-radius: 6px; margin-bottom: 1rem;">
+        <strong>Resultados no disponibles.</strong>
+        Los resultados solo están disponibles cuando la elección está en estado COMPLETADA.
+        Puede ingresar los conteos de votos haciendo clic en "Ingresar Votos".
+      </div>
+
+      <!-- Results tabs (only if completed) -->
+      <div *ngIf="canViewResults && results()">
+        <!-- Tab Navigation -->
+        <div style="display: flex; gap: 0.5rem; border-bottom: 2px solid var(--border-color); margin-bottom: 1.5rem;">
+          <button
+            type="button"
+            class="btn ghost"
+            [class.active]="activeTab() === 'overview'"
+            (click)="setActiveTab('overview')"
+            style="border-bottom: 3px solid transparent;"
+            [style.border-bottom-color]="activeTab() === 'overview' ? 'var(--primary)' : 'transparent'"
+          >
+            Resumen
+          </button>
+          <button
+            type="button"
+            class="btn ghost"
+            [class.active]="activeTab() === 'by-position'"
+            (click)="setActiveTab('by-position')"
+            style="border-bottom: 3px solid transparent;"
+            [style.border-bottom-color]="activeTab() === 'by-position' ? 'var(--primary)' : 'transparent'"
+          >
+            Por Cargo
+          </button>
+          <button
+            type="button"
+            class="btn ghost"
+            [class.active]="activeTab() === 'by-list'"
+            (click)="setActiveTab('by-list')"
+            style="border-bottom: 3px solid transparent;"
+            [style.border-bottom-color]="activeTab() === 'by-list' ? 'var(--primary)' : 'transparent'"
+          >
+            Por Lista
+          </button>
+          <button
+            type="button"
+            class="btn ghost"
+            [class.active]="activeTab() === 'detailed'"
+            (click)="setActiveTab('detailed')"
+            style="border-bottom: 3px solid transparent;"
+            [style.border-bottom-color]="activeTab() === 'detailed' ? 'var(--primary)' : 'transparent'"
+          >
+            Detallado
+          </button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div *ngIf="activeTab() === 'overview'">
+          <div class="grid">
+            <!-- Statistics Cards -->
+            <div class="card span-4">
+              <div class="card-body" style="text-align: center;">
+                <div style="font-size: 2.5rem; font-weight: bold; color: var(--primary);">{{ results()!.totalVotes }}</div>
+                <div class="text-muted">Total de Votos</div>
+              </div>
+            </div>
+            <div class="card span-4">
+              <div class="card-body" style="text-align: center;">
+                <div style="font-size: 2.5rem; font-weight: bold; color: var(--primary);">{{ results()!.listResults.length }}</div>
+                <div class="text-muted">Listas Participantes</div>
+              </div>
+            </div>
+            <div class="card span-4">
+              <div class="card-body" style="text-align: center;">
+                <div style="font-size: 2.5rem; font-weight: bold; color: var(--primary);">{{ results()!.positionResults.length }}</div>
+                <div class="text-muted">Cargos en Disputa</div>
+              </div>
+            </div>
+
+            <!-- Pie Chart Section -->
+            <div class="card span-12">
+              <div class="card-header">
+                <h4 style="margin: 0;">Distribución de Votos por Lista</h4>
+              </div>
+              <div class="card-body">
+                <div style="display: flex; gap: 2rem; align-items: center;">
+                  <!-- Legend on left -->
+                  <div style="flex: 1;">
+                    <div *ngFor="let list of results()!.listResults" style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                      <div style="width: 16px; height: 16px; border-radius: 3px;" [style.background]="getColorByListId(list.listId)"></div>
+                      <div style="flex: 1;">
+                        <div style="font-weight: 500;">{{ list.listName }}</div>
+                        <small class="text-muted" *ngIf="list.listNumber || list.partyName">
+                          <span *ngIf="list.listNumber">N° {{ list.listNumber }}</span>
+                          <span *ngIf="list.partyName"> • {{ list.partyName }}</span>
+                        </small>
+                      </div>
+                      <div style="font-weight: bold; color: var(--primary);">{{ list.percentage.toFixed(1) }}%</div>
+                    </div>
+                  </div>
+                  
+                  <!-- Canvas chart on right -->
+                  <div style="width: 300px; height: 300px; display: flex; align-items: center; justify-content: center;">
+                    <canvas #pieChart width="300" height="300" style="display: block;"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Winners by Position -->
+            <div class="card span-12">
+              <div class="card-header">
+                <h4 style="margin: 0;">Ganadores por Cargo</h4>
+              </div>
+              <div class="card-body">
+                <div class="grid">
+                  <div class="card span-6" *ngFor="let position of results()!.positionResults">
+                    <div class="card-header">
+                      <h5 style="margin: 0;">{{ position.positionTitle }}</h5>
+                    </div>
+                    <div class="card-body">
+                      <div *ngIf="getWinnerByPosition(position.positionId) as winner" style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 4px; height: 60px; border-radius: 2px;" [style.background]="getColorByListId(winner.listId)"></div>
+                        <div style="flex: 1;">
+                          <div style="font-size: 1.25rem; font-weight: 500;">{{ winner.candidateName }}</div>
+                          <div class="text-muted">{{ winner.listName }}</div>
+                        </div>
+                        <div style="text-align: right;">
+                          <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary);">{{ winner.voteCount }}</div>
+                          <div class="text-muted">{{ winner.percentage.toFixed(2) }}%</div>
+                        </div>
+                      </div>
+                      <div *ngIf="!getWinnerByPosition(position.positionId)" class="text-muted" style="font-style: italic;">
+                        Sin votos registrados
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- By Position Tab -->
+        <div *ngIf="activeTab() === 'by-position'">
+          <div class="card" *ngFor="let position of results()!.positionResults" style="margin-bottom: 1rem;">
+            <div class="card-header">
+              <h4 style="margin: 0;">{{ position.positionTitle }}</h4>
+            </div>
+            <div class="card-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Candidato</th>
+                    <th>Lista</th>
+                    <th>Votos</th>
+                    <th>Porcentaje</th>
+                    <th style="width: 200px;">Distribución</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let candidate of position.candidates; let i = index">
+                    <td>{{ candidate.candidateName }}</td>
+                    <td>{{ candidate.listName }}</td>
+                    <td>{{ candidate.voteCount }}</td>
+                    <td>{{ candidate.percentage.toFixed(2) }}%</td>
+                    <td>
+                      <div style="background: #f0f0f0; height: 24px; border-radius: 4px; overflow: hidden;">
+                        <div [style.background]="getColorByListId(candidate.listId)" style="height: 100%; transition: width 0.3s ease;" [style.width.%]="candidate.percentage"></div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- By List Tab -->
+        <div *ngIf="activeTab() === 'by-list'">
+          <div class="card" *ngFor="let list of results()!.listResults; let i = index" style="margin-bottom: 1rem;">
+            <div class="card-header">
+              <div>
+                <h4 style="margin: 0;">{{ list.listName }}</h4>
+                <small class="text-muted">
+                  <span *ngIf="list.listNumber">N° {{ list.listNumber }}</span>
+                  <span *ngIf="list.partyName"> • {{ list.partyName }}</span>
+                </small>
+              </div>
+            </div>
+            <div class="card-body">
+              <div style="display: flex; gap: 2rem; margin-bottom: 1rem;">
+                <div>
+                  <div class="text-muted">Total de Votos</div>
+                  <div style="font-size: 1.5rem; font-weight: bold;">{{ list.totalVotes }}</div>
+                </div>
+                <div>
+                  <div class="text-muted">Porcentaje</div>
+                  <div style="font-size: 1.5rem; font-weight: bold;">{{ list.percentage.toFixed(2) }}%</div>
+                </div>
+              </div>
+              <div style="background: #f0f0f0; height: 32px; border-radius: 4px; overflow: hidden;">
+                <div [style.background]="getColorByListId(list.listId)" style="height: 100%; transition: width 0.3s ease;" [style.width.%]="list.percentage"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detailed Tab -->
+        <div *ngIf="activeTab() === 'detailed'">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Candidato</th>
+                <th>Cargo</th>
+                <th>Lista</th>
+                <th>Partido</th>
+                <th>Votos</th>
+                <th>Porcentaje</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let candidate of results()!.candidateResults">
+                <td>{{ candidate.candidateName }}</td>
+                <td>{{ candidate.positionTitle }}</td>
+                <td>{{ candidate.listName }}</td>
+                <td>{{ candidate.partyName || '-' }}</td>
+                <td>{{ candidate.voteCount }}</td>
+                <td>{{ candidate.percentage.toFixed(2) }}%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
