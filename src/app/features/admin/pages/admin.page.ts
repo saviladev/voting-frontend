@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewEncapsulation, signal } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, signal, HostListener } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
 import { filter, firstValueFrom } from 'rxjs';
@@ -8,19 +8,12 @@ import { ChaptersService } from '../../../core/services/chapters.service';
 import { PartiesService } from '../../../core/services/parties.service';
 import { RbacService } from '../../../core/services/rbac.service';
 
-type AdminSection =
-  | 'home'
-  | 'users'
-  | 'roles'
-  | 'permissions'
-  | 'associations'
-  | 'branches'
-  | 'specialties'
-  | 'chapters'
-  | 'parties'
-  | 'padron'
-  | 'audit'
-  | 'elections';
+interface NavItem {
+  label: string;
+  link?: string;
+  icon?: string;
+  isSectionHeader?: boolean;
+}
 
 @Component({
   selector: 'app-admin',
@@ -33,10 +26,38 @@ export class AdminPage implements OnInit {
   sidebarCollapsed = signal(false);
   sectionTitle = 'Panel';
   sectionDescription = 'Administra las secciones del sistema.';
+  
+  navItems: NavItem[] = [];
 
   usersCount = signal(0);
   chaptersCount = signal(0);
   partiesCount = signal(0);
+
+  private adminNavItems: NavItem[] = [
+    { label: 'Inicio', isSectionHeader: true },
+    { label: 'Panel', link: '/admin/home', icon: 'IN' },
+    { label: 'Gestión', isSectionHeader: true },
+    { label: 'Usuarios', link: '/admin/users', icon: 'US' },
+    { label: 'Roles', link: '/admin/roles', icon: 'RO' },
+    { label: 'Permisos', link: '/admin/permissions', icon: 'PE' },
+    { label: 'Estructura', isSectionHeader: true },
+    { label: 'Asociaciones', link: '/admin/associations', icon: 'AS' },
+    { label: 'Sedes', link: '/admin/branches', icon: 'SE' },
+    { label: 'Especialidades', link: '/admin/specialties', icon: 'ES' },
+    { label: 'Capítulos', link: '/admin/chapters', icon: 'CA' },
+    { label: 'Política', isSectionHeader: true },
+    { label: 'Elecciones', link: '/admin/elections', icon: 'EL' },
+    { label: 'Partidos', link: '/admin/parties', icon: 'PO' },
+    { label: 'Sistema', isSectionHeader: true },
+    { label: 'Padrón', link: '/admin/padron', icon: 'PA' },
+    { label: 'Auditoría', link: '/admin/audit', icon: 'AU' },
+  ];
+
+  private memberNavItems: NavItem[] = [
+    { label: 'Menú', isSectionHeader: true },
+    { label: 'Votación', link: '/admin/voting', icon: 'VT' },
+    { label: 'Mi Perfil', link: '/admin/profile', icon: 'PE' },
+  ];
 
   constructor(
     private authService: AuthService,
@@ -47,34 +68,62 @@ export class AdminPage implements OnInit {
     private partiesService: PartiesService,
   ) {}
 
+  @HostListener('window:resize')
+  onResize() {
+    this.checkScreenSize();
+  }
+
   ngOnInit(): void {
-    if (typeof window !== 'undefined') {
-      this.sidebarCollapsed.set(window.innerWidth <= 1200);
-    }
-    this.updateSectionMeta();
+    this.setupNavigation();
+    this.checkScreenSize();
+
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
       this.updateSectionMeta();
       if (this.isMobile()) {
         this.sidebarCollapsed.set(true);
       }
     });
-    void this.loadSidebarStats();
+
+    if (!this.authService.hasRole('Member')) {
+      void this.loadSidebarStats();
+    }
+  }
+
+  private checkScreenSize() {
+    if (typeof window !== 'undefined') {
+      this.sidebarCollapsed.set(window.innerWidth <= 1200);
+    }
+  }
+
+  private setupNavigation(): void {
+    if (this.authService.hasRole('Member')) {
+      this.navItems = this.memberNavItems;
+    } else {
+      this.navItems = this.adminNavItems;
+    }
   }
 
   get currentUserName(): string {
     const user = this.authService.getUser();
-    if (!user) {
-      return 'Administrador';
-    }
+    if (!user) return 'Usuario';
     return `${user.firstName} ${user.lastName}`.trim();
   }
 
   get currentUserRole(): string {
     const user = this.authService.getUser();
-    if (!user || !user.roles?.length) {
-      return 'Administrador';
-    }
-    return user.roles.join(', ');
+    if (!user || !user.roles?.length) return 'Invitado';
+    
+    const roleMap: Record<string, string> = {
+      SystemAdmin: 'Administrador',
+      PadronManager: 'Gestor de Padrón',
+      Member: 'Miembro'
+    };
+
+    return user.roles.map(r => roleMap[r] || r).join(', ');
+  }
+
+  isMember(): boolean {
+    return this.authService.hasRole('Member');
   }
 
   toggleSidebar() {
@@ -94,35 +143,6 @@ export class AdminPage implements OnInit {
     await this.router.navigateByUrl('/login');
   }
 
-  canAccessSection(section: AdminSection): boolean {
-    if (section === 'home') {
-      return true;
-    }
-    if (this.authService.hasRole('SystemAdmin')) {
-      return true;
-    }
-    const permissionMap: Record<AdminSection, string | null> = {
-      home: null,
-      users: 'users.manage',
-      roles: 'rbac.manage',
-      permissions: 'rbac.manage',
-      associations: 'associations.manage',
-      branches: 'branches.manage',
-      specialties: 'specialties.manage',
-      chapters: 'chapters.manage',
-      parties: 'parties.manage',
-      padron: 'padron.manage',
-      audit: 'rbac.manage',
-      elections: 'elections.manage',
-    };
-    const permission = permissionMap[section];
-    if (!permission) {
-      return false;
-    }
-    const user = this.authService.getUser();
-    return Boolean(user && user.permissions.includes(permission));
-  }
-
   private updateSectionMeta() {
     let route = this.route.firstChild;
     while (route?.firstChild) {
@@ -135,15 +155,9 @@ export class AdminPage implements OnInit {
 
   private async loadSidebarStats() {
     const [users, chapters, parties] = await Promise.all([
-      this.canAccessSection('users')
-        ? firstValueFrom(this.rbacService.listUsers()).then((list) => list.length).catch(() => 0)
-        : Promise.resolve(0),
-      this.canAccessSection('chapters')
-        ? firstValueFrom(this.chaptersService.list()).then((list) => list.length).catch(() => 0)
-        : Promise.resolve(0),
-      this.canAccessSection('parties')
-        ? firstValueFrom(this.partiesService.list()).then((list) => list.length).catch(() => 0)
-        : Promise.resolve(0),
+      firstValueFrom(this.rbacService.listUsers()).then((list) => list.length).catch(() => 0),
+      firstValueFrom(this.chaptersService.list()).then((list) => list.length).catch(() => 0),
+      firstValueFrom(this.partiesService.list()).then((list) => list.length).catch(() => 0),
     ]);
     this.usersCount.set(users);
     this.chaptersCount.set(chapters);

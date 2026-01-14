@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal, computed, viewChild, ElementRef, AfterViewInit, effect } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, OnInit, signal, viewChild, ElementRef, effect } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ToastController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
@@ -10,38 +9,29 @@ import { ElectionsService } from '../../../core/services/elections.service';
 import {
   ElectionDto,
   ElectionResultsDto,
-  PositionResultDto,
-  ListResultDto,
 } from '../../../core/models/elections.models';
 
 @Component({
   selector: 'app-admin-election-results',
   standalone: true,
   templateUrl: 'admin-election-results.section.html',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, RouterLink],
 })
-export class AdminElectionResultsSection implements OnInit, AfterViewInit {
+export class AdminElectionResultsSection implements OnInit {
   pieChartCanvas = viewChild<ElementRef<HTMLCanvasElement>>('pieChart');
   election = signal<ElectionDto | null>(null);
   results = signal<ElectionResultsDto | null>(null);
   
   // UI State
-  viewMode = signal<'entry' | 'display'>('display');
   activeTab = signal<'overview' | 'by-position' | 'by-list' | 'detailed'>('overview');
   loading = signal(false);
   
-  // Vote count form
-  voteCountForm: FormGroup;
-
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private electionsService: ElectionsService,
-    private fb: FormBuilder,
     private toastController: ToastController,
   ) {
-    this.voteCountForm = this.fb.group({});
-    
     // Redraw chart when results change or canvas becomes available
     effect(() => {
       const results = this.results();
@@ -70,7 +60,6 @@ export class AdminElectionResultsSection implements OnInit, AfterViewInit {
       this.loading.set(true);
       const data = await firstValueFrom(this.electionsService.get(id));
       this.election.set(data);
-      this.buildVoteCountForm(data);
     } catch (e) {
       await this.notify('Error al cargar la elección', 'danger');
       this.router.navigate(['/admin/elections']);
@@ -89,16 +78,6 @@ export class AdminElectionResultsSection implements OnInit, AfterViewInit {
         console.error('Error loading results', e);
       }
     }
-  }
-
-  ngAfterViewInit() {
-    // Draw chart after view is initialized with a longer delay
-    setTimeout(() => {
-      const canvas = this.pieChartCanvas();
-      if (this.results() && canvas) {
-        this.drawPieChart();
-      }
-    }, 100);
   }
 
   drawPieChart() {
@@ -166,16 +145,6 @@ export class AdminElectionResultsSection implements OnInit, AfterViewInit {
     ctx.stroke();
   }
 
-  buildVoteCountForm(election: ElectionDto) {
-    const group: any = {};
-    election.candidateLists?.forEach((list) => {
-      list.candidates.forEach((candidate) => {
-        group[candidate.id] = [candidate.voteCount || 0, [Validators.required, Validators.min(0)]];
-      });
-    });
-    this.voteCountForm = this.fb.group(group);
-  }
-
   getScopeLabel(scope: string): string {
     switch (scope) {
       case 'ASSOCIATION': return 'Asociación';
@@ -195,11 +164,6 @@ export class AdminElectionResultsSection implements OnInit, AfterViewInit {
     }
   }
 
-  toggleViewMode() {
-    const current = this.viewMode();
-    this.viewMode.set(current === 'entry' ? 'display' : 'entry');
-  }
-
   setActiveTab(tab: 'overview' | 'by-position' | 'by-list' | 'detailed') {
     this.activeTab.set(tab);
     // Redraw chart when switching to overview tab
@@ -210,61 +174,8 @@ export class AdminElectionResultsSection implements OnInit, AfterViewInit {
     }
   }
 
-  async saveVoteCounts() {
-    if (this.voteCountForm.invalid) {
-      this.voteCountForm.markAllAsTouched();
-      await this.notify('Por favor corrija los errores en el formulario', 'warning');
-      return;
-    }
-
-    try {
-      this.loading.set(true);
-      const values = this.voteCountForm.value;
-      
-      // Update each candidate's vote count
-      const updates = Object.keys(values).map((candidateId) =>
-        firstValueFrom(
-          this.electionsService.updateCandidateVoteCount(candidateId, {
-            voteCount: values[candidateId],
-          })
-        )
-      );
-
-      await Promise.all(updates);
-      await this.notify('Conteos de votos actualizados exitosamente');
-      
-      // Reload election and results
-      const id = this.route.snapshot.paramMap.get('id');
-      if (id) {
-        await this.loadElection(id);
-        await this.loadResults(id);
-      }
-      
-      this.viewMode.set('display');
-    } catch (e) {
-      console.error(e);
-      await this.notify('Error al actualizar los conteos de votos', 'danger');
-    } finally {
-      this.loading.set(false);
-    }
-  }
-
-  cancelVoteEntry() {
-    this.viewMode.set('display');
-    const election = this.election();
-    if (election) {
-      this.buildVoteCountForm(election);
-    }
-  }
-
   get canViewResults(): boolean {
     return this.election()?.status === 'COMPLETED';
-  }
-
-  get totalVotesEntered(): number {
-    if (!this.voteCountForm) return 0;
-    const values = this.voteCountForm.value;
-    return Object.values(values).reduce((sum: number, count: any) => sum + (Number(count) || 0), 0);
   }
 
   getBarColor(index: number): string {

@@ -27,132 +27,16 @@
       </div>
 
       <nav class="nav">
-        <div class="nav-section">Inicio</div>
-        <a class="nav-link" routerLink="/admin/home" routerLinkActive="active">
-          <span class="nav-icon">IN</span>
-          <span class="nav-label">Panel</span>
-        </a>
-
-        <div class="nav-section">Gestión</div>
-        <a
-          *ngIf="canAccessSection('users')"
-          class="nav-link"
-          routerLink="/admin/users"
-          routerLinkActive="active"
-          >
-          <span class="nav-icon">US</span>
-          <span class="nav-label">Usuarios</span>
-        </a
-        >
-        <a
-          *ngIf="canAccessSection('roles')"
-          class="nav-link"
-          routerLink="/admin/roles"
-          routerLinkActive="active"
-          >
-          <span class="nav-icon">RO</span>
-          <span class="nav-label">Roles</span>
-        </a
-        >
-        <a
-          *ngIf="canAccessSection('permissions')"
-          class="nav-link"
-          routerLink="/admin/permissions"
-          routerLinkActive="active"
-          >
-          <span class="nav-icon">PE</span>
-          <span class="nav-label">Permisos</span>
-        </a
-        >
-
-        <div class="nav-section">Estructura</div>
-        <a
-          *ngIf="canAccessSection('associations')"
-          class="nav-link"
-          routerLink="/admin/associations"
-          routerLinkActive="active"
-          >
-          <span class="nav-icon">AS</span>
-          <span class="nav-label">Asociaciones</span>
-        </a
-        >
-        <a
-          *ngIf="canAccessSection('branches')"
-          class="nav-link"
-          routerLink="/admin/branches"
-          routerLinkActive="active"
-          >
-          <span class="nav-icon">SE</span>
-          <span class="nav-label">Sedes</span>
-        </a
-        >
-        <a
-          *ngIf="canAccessSection('specialties')"
-          class="nav-link"
-          routerLink="/admin/specialties"
-          routerLinkActive="active"
-          >
-          <span class="nav-icon">ES</span>
-          <span class="nav-label">Especialidades</span>
-        </a
-        >
-        <a
-          *ngIf="canAccessSection('chapters')"
-          class="nav-link"
-          routerLink="/admin/chapters"
-          routerLinkActive="active"
-          >
-          <span class="nav-icon">CA</span>
-          <span class="nav-label">Capítulos</span>
-        </a
-        >
-
-        <div class="nav-section">Política</div>
-        <a
-          *ngIf="canAccessSection('elections')"
-          class="nav-link"
-          routerLink="/admin/elections"
-          routerLinkActive="active"
-          >
-          <span class="nav-icon">EL</span>
-          <span class="nav-label">Elecciones</span>
-        </a
-        >
-        <a
-          *ngIf="canAccessSection('parties')"
-          class="nav-link"
-          routerLink="/admin/parties"
-          routerLinkActive="active"
-          >
-          <span class="nav-icon">PO</span>
-          <span class="nav-label">Partidos</span>
-        </a
-        >
-
-        <div class="nav-section">Sistema</div>
-        <a
-          *ngIf="canAccessSection('padron')"
-          class="nav-link"
-          routerLink="/admin/padron"
-          routerLinkActive="active"
-          >
-          <span class="nav-icon">PA</span>
-          <span class="nav-label">Padrón</span>
-        </a
-        >
-        <a
-          *ngIf="canAccessSection('audit')"
-          class="nav-link"
-          routerLink="/admin/audit"
-          routerLinkActive="active"
-          >
-          <span class="nav-icon">AU</span>
-          <span class="nav-label">Auditoría</span>
-        </a
-        >
+        <ng-container *ngFor="let item of navItems">
+          <div *ngIf="item.isSectionHeader" class="nav-section">{{ item.label }}</div>
+          <a *ngIf="!item.isSectionHeader && item.link" class="nav-link" [routerLink]="item.link" routerLinkActive="active">
+            <span class="nav-icon">{{ item.icon }}</span>
+            <span class="nav-label">{{ item.label }}</span>
+          </a>
+        </ng-container>
       </nav>
 
-      <div class="sidebar-footer">
+      <div class="sidebar-footer" *ngIf="!isMember()">
         <div class="stat">
           <span>Usuarios</span>
           <strong>{{ usersCount() }}</strong>

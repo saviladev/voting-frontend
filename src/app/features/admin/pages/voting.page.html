@@ -1,0 +1,44 @@
+<div class="page-container">
+  <div *ngIf="status() === 'loading'" class="centered-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Cargando elecciones disponibles...</p>
+  </div>
+
+  <div *ngIf="status() === 'error'" class="centered-container error-container">
+    <h2>Error de Carga</h2>
+    <p>No se pudieron cargar las elecciones. Por favor, intente de nuevo más tarde.</p>
+    <ion-button (click)="loadVotableElections()">Reintentar</ion-button>
+  </div>
+
+  <div *ngIf="status() === 'loaded'">
+    <div *ngIf="elections().length === 0" class="centered-container">
+      <h2>No hay elecciones pendientes</h2>
+      <p>No tienes elecciones disponibles para votar en este momento.</p>
+    </div>
+
+    <ion-list>
+      <ion-card *ngFor="let election of elections()" class="election-card">
+        <ion-card-header>
+          <ion-card-subtitle>{{ election.scope | titlecase }}</ion-card-subtitle>
+          <ion-card-title>{{ election.name }}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p>{{ election.description }}</p>
+          <div class="date-range">
+            <strong>Inicio:</strong> {{ election.startDate | date:'medium' }} <br>
+            <strong>Fin:</strong> {{ election.endDate | date:'medium' }}
+          </div>
+          <ion-button
+            expand="block"
+            fill="solid"
+            (click)="navigateToVote(election.id)"
+            class="vote-button"
+            >
+            Ir a Votar
+            <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    </ion-list>
+  </div>
+</div>

@@ -17,17 +17,8 @@
           class="btn primary"
           (click)="exportToPDF()"
           [disabled]="!canViewResults || !results()"
-          *ngIf="viewMode() === 'display'"
         >
           Exportar a PDF
-        </button>
-        <button
-          type="button"
-          class="btn ghost"
-          (click)="toggleViewMode()"
-          [disabled]="loading()"
-        >
-          {{ viewMode() === 'entry' ? 'Ver Resultados' : 'Ingresar Votos' }}
         </button>
         <a [routerLink]="['/admin/elections', election()!.id]" class="btn ghost">
           Volver a Detalles
@@ -35,60 +26,12 @@
       </div>
     </div>
 
-    <!-- Vote Entry Mode -->
-    <div class="card-body" *ngIf="viewMode() === 'entry'">
-      <h4>Ingresar Conteos de Votos</h4>
-      <p class="text-muted">Total de votos ingresados: <strong>{{ totalVotesEntered }}</strong></p>
-
-      <form [formGroup]="voteCountForm" (ngSubmit)="saveVoteCounts()">
-        <div class="grid">
-          <div class="card span-6" *ngFor="let list of election()!.candidateLists">
-            <div class="card-header">
-              <div>
-                <h4 style="margin: 0;">{{ list.name }}</h4>
-                <small class="text-muted">
-                  <span *ngIf="list.number">N° {{ list.number }}</span>
-                  <span *ngIf="list.politicalParty"> • {{ list.politicalParty.name }}</span>
-                </small>
-              </div>
-            </div>
-            <div class="card-body">
-              <div class="form-group" *ngFor="let candidate of list.candidates">
-                <label>
-                  <span class="badge">{{ candidate.position?.title }}</span>
-                  {{ candidate.firstName }} {{ candidate.lastName }}
-                </label>
-                <input
-                  type="number"
-                  class="form-control"
-                  [formControlName]="candidate.id"
-                  min="0"
-                  step="1"
-                  placeholder="Votos"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem;">
-          <button type="button" class="btn ghost" (click)="cancelVoteEntry()" [disabled]="loading()">
-            Cancelar
-          </button>
-          <button type="submit" class="btn primary" [disabled]="loading() || voteCountForm.invalid">
-            {{ loading() ? 'Guardando...' : 'Guardar Conteos' }}
-          </button>
-        </div>
-      </form>
-    </div>
-
     <!-- Results Display Mode -->
-    <div class="card-body" *ngIf="viewMode() === 'display'">
+    <div class="card-body">
       <!-- Warning if not completed -->
-      <div *ngIf="!canViewResults" style="padding: 1rem; background: var(--ion-color-danger); border: 1px solid var(--ion-color-danger); border-radius: 6px; margin-bottom: 1rem;">
+      <div *ngIf="!canViewResults" style="padding: 1rem; background: var(--ion-color-warning-tint); border: 1px solid var(--ion-color-warning); border-radius: 6px; margin-bottom: 1rem;">
         <strong>Resultados no disponibles.</strong>
         Los resultados solo están disponibles cuando la elección está en estado COMPLETADA.
-        Puede ingresar los conteos de votos haciendo clic en "Ingresar Votos".
       </div>
 
       <!-- Results tabs (only if completed) -->

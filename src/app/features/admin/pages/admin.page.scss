@@ -36,12 +36,12 @@
   overflow-y: auto;
   transition: width 0.2s ease, transform 0.2s ease;
   width: var(--sidebar-width);
-  
+
   /* Hide scrollbar for Chrome, Safari and Opera */
   &::-webkit-scrollbar {
     display: none;
   }
-  
+
   /* Hide scrollbar for IE, Edge and Firefox */
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -142,12 +142,12 @@
   flex: 1;
   overflow-y: auto;
   min-height: 0;
-  
+
   /* Hide scrollbar for Chrome, Safari and Opera */
   &::-webkit-scrollbar {
     display: none;
   }
-  
+
   /* Hide scrollbar for IE, Edge and Firefox */
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -274,6 +274,7 @@
   align-items: center;
   gap: 24px;
   margin-bottom: 28px;
+  flex-shrink: 0; // Agregado
 }
 
 .topbar-left {
@@ -346,8 +347,29 @@
 }
 
 .content {
-  display: grid;
-  gap: 24px;
+  display: block;
+  width: 100%;
+
+  // Simple y limpio
+  >* {
+    display: block;
+    width: 100%;
+  }
+}
+
+
+// Asegurar que router-outlet no interfiera
+router-outlet {
+  display: contents;
+}
+
+// CRÍTICO: Deshabilitar el ion-content interno de las páginas hijas
+.content ion-content {
+  --offset-top: 0;
+  --offset-bottom: 0;
+  position: static; // Importante
+  height: 100%;
+  contain: none; // Importante para Ionic
 }
 
 .grid {
@@ -483,11 +505,11 @@
   transition: transform 0.2s ease, color 0.2s ease;
 }
 
-.switch input:checked + .slider {
+.switch input:checked+.slider {
   background-color: rgba(60, 141, 188, 0.25);
 }
 
-.switch input:checked + .slider::before {
+.switch input:checked+.slider::before {
   transform: translateX(24px);
   content: "V";
   color: var(--admin-primary);
@@ -840,26 +862,14 @@
 }
 
 @media (max-width: 1200px) {
-  .adminlte-shell {
-    grid-template-columns: 1fr;
+
+  // El grid se mantiene, solo cambian los tamaños
+  .adminlte-shell.sidebar-collapsed {
+    grid-template-columns: var(--sidebar-collapsed-width) 1fr;
   }
 
-  .sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    transform: translateX(0);
-    z-index: 12;
-    width: 100%;
-  }
-
-  .adminlte-shell.sidebar-collapsed .sidebar {
-    width: var(--sidebar-collapsed-width);
-  }
-
-  .adminlte-shell.sidebar-collapsed .main {
-    margin-left: var(--sidebar-collapsed-width);
+  .adminlte-shell.sidebar-expanded {
+    grid-template-columns: var(--sidebar-width) 1fr;
   }
 
   .burger {
@@ -867,6 +877,7 @@
     justify-content: center;
   }
 
+  // Los grids internos se vuelven de una columna
   .grid {
     grid-template-columns: 1fr;
   }
@@ -877,12 +888,35 @@
   .span-12 {
     grid-column: span 1;
   }
-  .sidebar-overlay {
-    display: block;
+
+  // La main section debe usar todo su espacio disponible
+  .main {
+    padding: 20px 16px 32px;
+    min-width: 0; // Importante para evitar overflow
   }
 
-  .adminlte-shell.sidebar-expanded ~ .sidebar-overlay {
-    opacity: 1;
-    pointer-events: auto;
+  .topbar {
+    flex-wrap: wrap;
   }
 }
+
+
+
+// IMPORTANTE: Controlar el comportamiento de ion-content en páginas hijas
+// .adminlte {
+//   ion-content {
+//     contain: none !important;
+//   }
+// }
+
+// // Asegurar que el contenido de las rutas hijas use todo el espacio
+// .content {
+
+//   app-voting-detail,
+//   app-voting-page,
+//   app-profile-page {
+//     display: block;
+//     height: 100%;
+//     width: 100%;
+//   }
+// }

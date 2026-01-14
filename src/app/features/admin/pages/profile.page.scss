@@ -1,0 +1,78 @@
+:host {
+  display: block;
+  height: 100%;
+  width: 100%; // Agregado
+}
+
+.page-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1rem;
+  width: 100%;
+  box-sizing: border-box; // Importante
+}
+
+.centered-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem 1rem; // Modificado
+}
+
+ion-card {
+  margin-bottom: 2rem;
+  width: 100%; // Agregado
+}
+
+ion-button {
+  margin-top: 1rem;
+}
+
+.feedback {
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  margin-top: 1.5rem;
+  font-weight: 500;
+}
+
+.feedback.success {
+  background-color: var(--ion-color-success-tint);
+  color: var(--ion-color-success-shade);
+  border: 1px solid var(--ion-color-success-shade);
+}
+
+.feedback.error {
+  background-color: var(--ion-color-danger-tint);
+  color: var(--ion-color-danger-shade);
+  border: 1px solid var(--ion-color-danger-shade);
+}
+
+@media (max-width: 1200px) {
+  .page-container {
+    max-width: 100%; // Sin restricción
+    padding: 1rem 0.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-container {
+    padding: 1rem 0.5rem;
+  }
+
+  ion-card {
+    margin-bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .page-container {
+    padding: 0.75rem 0.5rem;
+  }
+
+  ion-card {
+    margin-bottom: 1rem;
+  }
+}

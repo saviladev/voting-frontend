@@ -14,82 +14,169 @@ import { AdminUsersSection } from './sections/admin-users.section';
 import { AdminElectionsSection } from './sections/admin-elections.section';
 import { AdminElectionDetailSection } from './sections/admin-election-detail.section';
 import { AdminElectionResultsSection } from './sections/admin-election-results.section';
+import { RoleGuard } from '../../core/guards/role.guard';
+import { ProfilePage } from './pages/profile.page';
+import { VotingPage } from './pages/voting.page';
+import { VotingDetailPage } from './pages/voting-detail.page';
+import { RedirectPage } from './pages/redirect.page';
 
 export const routes: Routes = [
   {
     path: '',
     component: AdminPage,
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'home' },
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'redirect', // Redirect to the logic handler
+      },
+      {
+        path: 'redirect',
+        component: RedirectPage, // This component will redirect based on role
+      },
+      // =================================================================
+      // == Member Routes
+      // =================================================================
+      {
+        path: 'voting',
+        component: VotingPage,
+        canActivate: [RoleGuard],
+        data: {
+          roles: ['Member'],
+          title: 'Votación',
+          description: 'Emite tu voto en las elecciones abiertas.',
+        },
+      },
+      {
+        path: 'voting/:id',
+        component: VotingDetailPage,
+        canActivate: [RoleGuard],
+        data: {
+          roles: ['Member'],
+          title: 'Emitir Voto',
+          description: 'Selecciona tu candidato de preferencia.',
+        },
+      },
+      {
+        path: 'profile',
+        component: ProfilePage,
+        canActivate: [RoleGuard],
+        data: {
+          roles: ['Member'],
+          title: 'Mi Perfil',
+          description: 'Actualiza tu información personal.',
+        },
+      },
+      // =================================================================
+      // == Admin Routes
+      // =================================================================
       {
         path: 'home',
         component: AdminHomePage,
-        data: { title: 'Inicio', description: 'Resumen general del panel administrativo.' },
+        canActivate: [RoleGuard],
+        data: {
+          roles: ['SystemAdmin', 'PadronManager'],
+          title: 'Inicio',
+          description: 'Resumen general del panel administrativo.',
+        },
       },
       {
         path: 'elections',
         component: AdminElectionsSection,
-        data: { title: 'Elecciones', description: 'Gestión de procesos electorales.' },
+        canActivate: [RoleGuard],
+        data: {
+          roles: ['SystemAdmin', 'PadronManager'],
+          title: 'Elecciones',
+          description: 'Gestión de procesos electorales.',
+        },
       },
       {
         path: 'elections/:id',
         component: AdminElectionDetailSection,
-        data: { title: 'Detalle de Elección', description: 'Gestión de listas y candidatos.' },
+        canActivate: [RoleGuard],
+        data: {
+          roles: ['SystemAdmin', 'PadronManager'],
+          title: 'Detalle de Elección',
+          description: 'Gestión de listas y candidatos.',
+        },
       },
       {
         path: 'elections/:id/results',
         component: AdminElectionResultsSection,
-        data: { title: 'Resultados de Elección', description: 'Visualización y gestión de resultados.' },
+        canActivate: [RoleGuard],
+        data: {
+          roles: ['SystemAdmin', 'PadronManager'],
+          title: 'Resultados de Elección',
+          description: 'Visualización y gestión de resultados.',
+        },
       },
       {
         path: 'users',
         component: AdminUsersSection,
-        data: { title: 'Usuarios', description: 'Gestiona colegiados y sus accesos.' },
+        canActivate: [RoleGuard],
+        data: { roles: ['SystemAdmin'], title: 'Usuarios', description: 'Gestiona colegiados y sus accesos.' },
       },
       {
         path: 'roles',
         component: AdminRolesSection,
-        data: { title: 'Roles', description: 'Define roles y sus permisos.' },
+        canActivate: [RoleGuard],
+        data: { roles: ['SystemAdmin'], title: 'Roles', description: 'Define roles y sus permisos.' },
       },
       {
         path: 'permissions',
         component: AdminPermissionsSection,
-        data: { title: 'Permisos', description: 'Catálogo y mantenimiento de permisos.' },
+        canActivate: [RoleGuard],
+        data: { roles: ['SystemAdmin'], title: 'Permisos', description: 'Catálogo y mantenimiento de permisos.' },
       },
       {
         path: 'associations',
         component: AdminAssociationsSection,
-        data: { title: 'Asociaciones', description: 'Colegios profesionales y asociaciones madre.' },
+        canActivate: [RoleGuard],
+        data: {
+          roles: ['SystemAdmin'],
+          title: 'Asociaciones',
+          description: 'Colegios profesionales y asociaciones madre.',
+        },
       },
       {
         path: 'branches',
         component: AdminBranchesSection,
-        data: { title: 'Sedes', description: 'Sedes activas por asociación.' },
+        canActivate: [RoleGuard],
+        data: { roles: ['SystemAdmin'], title: 'Sedes', description: 'Sedes activas por asociación.' },
       },
       {
         path: 'specialties',
         component: AdminSpecialtiesSection,
-        data: { title: 'Especialidades', description: 'Catálogo de especialidades profesionales.' },
+        canActivate: [RoleGuard],
+        data: { roles: ['SystemAdmin'], title: 'Especialidades', description: 'Catálogo de especialidades profesionales.' },
       },
       {
         path: 'chapters',
         component: AdminChaptersSection,
-        data: { title: 'Capítulos', description: 'Capítulos por sede y especialidad.' },
+        canActivate: [RoleGuard],
+        data: { roles: ['SystemAdmin'], title: 'Capítulos', description: 'Capítulos por sede y especialidad.' },
       },
       {
         path: 'parties',
         component: AdminPartiesSection,
-        data: { title: 'Partidos', description: 'Organizaciones políticas registradas.' },
+        canActivate: [RoleGuard],
+        data: { roles: ['SystemAdmin'], title: 'Partidos', description: 'Organizaciones políticas registradas.' },
       },
       {
         path: 'padron',
         component: AdminPadronSection,
-        data: { title: 'Padrón', description: 'Importación y deshabilitación masiva.' },
+        canActivate: [RoleGuard],
+        data: {
+          roles: ['SystemAdmin', 'PadronManager'],
+          title: 'Padrón',
+          description: 'Importación y deshabilitación masiva.',
+        },
       },
       {
         path: 'audit',
         component: AdminAuditSection,
-        data: { title: 'Auditoría', description: 'Bitácora de eventos críticos.' },
+        canActivate: [RoleGuard],
+        data: { roles: ['SystemAdmin'], title: 'Auditoría', description: 'Bitácora de eventos críticos.' },
       },
     ],
   },

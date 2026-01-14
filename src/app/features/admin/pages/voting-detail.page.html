@@ -1,0 +1,59 @@
+<ion-header [translucent]="false">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/admin/voting"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ election()?.name || 'Votar' }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="false" [scrollY]="true">
+  <div class="page-wrapper">
+    <div class="page-container">
+      <div *ngIf="status() === 'loading'" class="centered-container">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>Cargando detalles de la elección...</p>
+      </div>
+
+      <div *ngIf="status() === 'error'" class="centered-container error-container">
+        <h2>Error de Carga</h2>
+        <p>No se pudieron cargar los detalles de esta elección.</p>
+        <ion-button (click)="loadElectionDetails()">Reintentar</ion-button>
+      </div>
+
+      <div *ngIf="status() === 'loaded' && election() as e">
+        <div class="election-header">
+          <h1>{{ e.name }}</h1>
+          <p>{{ e.description }}</p>
+        </div>
+
+        <div *ngFor="let list of e.candidateLists" class="candidate-list">
+          <div class="list-header">
+            <h2>{{ list.name }}</h2>
+            <p *ngIf="list.politicalParty">{{ list.politicalParty.name }}</p>
+          </div>
+
+          <ion-card *ngFor="let candidate of list.candidates" class="candidate-card">
+            <ion-card-content>
+              <div class="candidate-info">
+                <div class="avatar-placeholder">
+                  {{ candidate.firstName[0] }}{{ candidate.lastName[0] }}
+                </div>
+                <div class="candidate-details">
+                  <h3>{{ candidate.firstName }} {{ candidate.lastName }}</h3>
+                  <p>{{ candidate.position?.title }}</p>
+                </div>
+              </div>
+              <ion-button fill="outline" (click)="selectCandidate(candidate)" class="vote-btn">
+                Votar
+              </ion-button>
+            </ion-card-content>
+          </ion-card>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ion-alert [isOpen]="isAlertOpen()" [header]="alertHeader" [message]="alertMessage" [buttons]="alertButtons"
+    (didDismiss)="handleAlertDismiss()"></ion-alert>
+</ion-content>

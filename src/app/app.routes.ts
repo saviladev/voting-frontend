@@ -12,8 +12,9 @@ export const routes: Routes = [
     path: 'admin',
     loadChildren: () =>
       import('./features/admin/admin.routes').then((m) => m.routes),
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['SystemAdmin', 'PadronManager'] },
+    canActivate: [AuthGuard],
+    // The RoleGuard is now applied to individual child routes
+    // to allow members to access their specific pages.
   },
   {
     path: '',

@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastController } from '@ionic/angular/standalone';
 import { BehaviorSubject, Observable, catchError, map, of, tap } from 'rxjs';
@@ -12,6 +12,7 @@ import {
   ResetPasswordDto,
   ResetPasswordResponseDto,
 } from '../models/auth.models';
+import { UsersService } from './users.service'; // Import UsersService
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -24,6 +25,7 @@ export class AuthService {
   private handlingSessionLoss = false;
 
   readonly user$ = this.userSubject.asObservable();
+  private usersService = inject(UsersService); // Inject UsersService
 
   constructor(
     private http: HttpClient,
@@ -66,6 +68,24 @@ export class AuthService {
   hasRole(role: string): boolean {
     const user = this.userSubject.value;
     return Boolean(user && user.roles.includes(role));
+  }
+
+  refreshUser(): Observable<AuthUser | null> {
+    return this.usersService.getMe().pipe(
+      tap((user) => {
+        const currentUser = this.getUser();
+        if (this.token) {
+          // Preserve roles and permissions from original login
+          const updatedUser: AuthUser = { ...user, roles: currentUser?.roles || [], permissions: currentUser?.permissions || [] };
+          this.setSession(this.token, updatedUser);
+        }
+      }),
+      map(user => this.getUser()),
+      catchError(() => {
+        this.handleSessionExpired();
+        return of(null);
+      })
+    );
   }
 
   login(dto: LoginDto): Observable<AuthUser> {

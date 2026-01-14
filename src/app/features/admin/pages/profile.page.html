@@ -1,0 +1,73 @@
+<div class="page-container">
+  <div *ngIf="status() === 'loading'" class="centered-container">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+
+  <div *ngIf="status() === 'error'" class="centered-container error-container">
+    <h2>Error</h2>
+    <p>No se pudo cargar tu perfil.</p>
+  </div>
+
+  <div *ngIf="status() === 'loaded'">
+    <!-- Profile Information Card -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Información Personal</ion-card-title>
+      </ion-card-header>
+      <ion-card-content [formGroup]="profileForm">
+        <ion-list>
+          <ion-item>
+            <ion-input label="DNI" labelPlacement="stacked" formControlName="dni"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-input label="Nombres" labelPlacement="stacked" formControlName="firstName"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-input label="Apellidos" labelPlacement="stacked" formControlName="lastName"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-input label="Celular" labelPlacement="stacked" formControlName="phone"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-input label="Email" labelPlacement="stacked" type="email" formControlName="email"></ion-input>
+          </ion-item>
+        </ion-list>
+        <ion-button expand="block" (click)="onUpdateProfile()" [disabled]="updateStatus() === 'saving'">
+          <ion-spinner *ngIf="updateStatus() === 'saving'" name="crescent"></ion-spinner>
+          <span *ngIf="updateStatus() !== 'saving'">Actualizar Información</span>
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Change Password Card -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Cambiar Contraseña</ion-card-title>
+      </ion-card-header>
+      <ion-card-content [formGroup]="passwordForm">
+        <ion-list>
+          <ion-item>
+            <ion-input label="Contraseña Actual" labelPlacement="stacked" type="password"
+              formControlName="oldPassword"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-input label="Nueva Contraseña" labelPlacement="stacked" type="password"
+              formControlName="newPassword"></ion-input>
+          </ion-item>
+        </ion-list>
+        <ion-button expand="block" color="secondary" (click)="onChangePassword()"
+          [disabled]="updateStatus() === 'saving'">
+          <ion-spinner *ngIf="updateStatus() === 'saving'" name="crescent"></ion-spinner>
+          <span *ngIf="updateStatus() !== 'saving'">Cambiar Contraseña</span>
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+
+    <div *ngIf="updateStatus() === 'success'" class="feedback success">
+      ¡Perfil actualizado con éxito!
+    </div>
+    <div *ngIf="updateStatus() === 'error'" class="feedback error">
+      {{ updateError() }}
+    </div>
+  </div>
+</div>
