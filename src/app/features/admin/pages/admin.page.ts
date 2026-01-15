@@ -24,8 +24,29 @@ interface NavItem {
 })
 export class AdminPage implements OnInit {
   sidebarCollapsed = signal(false);
-  sectionTitle = 'Panel';
-  sectionDescription = 'Administra las secciones del sistema.';
+  
+  // Section header properties, now dynamic
+  sectionTitle = '';
+  sectionDescription = '';
+  breadcrumbPrefix = '';
+
+  private readonly headerConfig = {
+    SystemAdmin: {
+      title: 'Panel',
+      description: 'Administra las secciones del sistema.',
+      breadcrumb: 'Admin',
+    },
+    Member: {
+      title: 'Panel de Votante',
+      description: 'Sección para miembros de votación.',
+      breadcrumb: 'Votante',
+    },
+    default: {
+      title: 'Panel',
+      description: 'Bienvenido al sistema.',
+      breadcrumb: 'Usuario',
+    }
+  };
   
   navItems: NavItem[] = [];
 
@@ -75,6 +96,7 @@ export class AdminPage implements OnInit {
 
   ngOnInit(): void {
     this.setupNavigation();
+    this.setupHeaderContent();
     this.checkScreenSize();
 
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
@@ -93,6 +115,21 @@ export class AdminPage implements OnInit {
     if (typeof window !== 'undefined') {
       this.sidebarCollapsed.set(window.innerWidth <= 1200);
     }
+  }
+
+  private setupHeaderContent(): void {
+    const user = this.authService.getUser();
+    let config = this.headerConfig.default;
+
+    if (user?.roles.includes('SystemAdmin')) {
+      config = this.headerConfig.SystemAdmin;
+    } else if (user?.roles.includes('Member')) {
+      config = this.headerConfig.Member;
+    }
+    
+    this.sectionTitle = config.title;
+    this.sectionDescription = config.description;
+    this.breadcrumbPrefix = config.breadcrumb;
   }
 
   private setupNavigation(): void {
@@ -149,8 +186,11 @@ export class AdminPage implements OnInit {
       route = route.firstChild;
     }
     const data = route?.snapshot.data as { title?: string; description?: string } | undefined;
-    this.sectionTitle = data?.title ?? 'Panel';
-    this.sectionDescription = data?.description ?? 'Administra las secciones del sistema.';
+    
+    // Use route data if available, otherwise fall back to the role-based defaults
+    const currentConfig = this.headerConfig[this.authService.getUser()?.roles[0] as keyof typeof this.headerConfig] || this.headerConfig.default;
+    this.sectionTitle = data?.title ?? currentConfig.title;
+    this.sectionDescription = data?.description ?? currentConfig.description;
   }
 
   private async loadSidebarStats() {
