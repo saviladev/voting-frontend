@@ -1,251 +1,266 @@
 <div class="grid" *ngIf="election()">
-  <!-- Header -->
-  <div class="span-12">
-    <div class="card">
-      <!-- View Mode -->
-      <div class="card-body" *ngIf="!editMode()" style="display: flex; justify-content: space-between; align-items: center;">
-        <div>
-            <div class="breadcrumb" style="margin-bottom: 0.5rem;">
-                <a routerLink="/admin/elections" style="text-decoration: none; color: inherit;">Elecciones</a> / Detalle
-            </div>
-            <h2 style="margin: 0;">{{ election()?.name }}</h2>
-            <div class="text-muted" style="margin-top: 0.25rem;">
-                {{ getScopeLabel(election()!.scope) }} • {{ getStatusLabel(election()!.status) }}
-            </div>
-            <div class="text-muted" style="margin-top: 0.5rem; font-size: 0.9em;">
-                <strong>Inicio:</strong> {{ election()?.startDate | date:'medium' }} • 
-                <strong>Fin:</strong> {{ election()?.endDate | date:'medium' }}
-            </div>
-        </div>
-        <div style="display: flex; gap: 0.5rem;">
-          <a [routerLink]="['/admin/elections', election()!.id, 'results']" class="btn primary">
-            {{ election()!.status === 'COMPLETED' ? 'Ver Resultados' : 'Ingresar Resultados' }}
-          </a>
-          <button class="btn ghost" (click)="toggleEditMode()">Editar Elección</button>
-        </div>
-      </div>
-
-      <!-- Edit Mode -->
-      <div class="card-body" *ngIf="editMode()">
-        <div class="breadcrumb" style="margin-bottom: 1rem;">
-            <a routerLink="/admin/elections" style="text-decoration: none; color: inherit;">Elecciones</a> / Editar
-        </div>
-        <form [formGroup]="editForm" (ngSubmit)="updateElection()" class="grid">
-          <div class="span-8 form-group">
-            <label>Nombre de la Elección</label>
-            <input class="form-control" formControlName="name" />
-          </div>
-          <div class="span-4 form-group">
-            <label>Estado</label>
-            <select class="form-control" formControlName="status">
-              <option value="DRAFT">Borrador</option>
-              <option value="OPEN">Abierta</option>
-              <option value="CLOSED">Cerrada</option>
-              <option value="COMPLETED">Completada</option>
-            </select>
-          </div>
-          <div class="span-6 form-group">
-            <label>Fecha de Inicio</label>
-            <input type="datetime-local" class="form-control" formControlName="startDate" />
-          </div>
-          <div class="span-6 form-group">
-            <label>Fecha de Fin</label>
-            <input type="datetime-local" class="form-control" formControlName="endDate" />
-          </div>
-          <div class="span-12 form-group">
-            <label>Descripción</label>
-            <textarea class="form-control" rows="2" formControlName="description"></textarea>
-          </div>
-          <div class="span-12" style="text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end;">
-            <button type="button" class="btn ghost" (click)="cancelEdit()">Cancelar</button>
-            <button type="submit" class="btn primary">Guardar Cambios</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Positions -->
-  <div class="span-4">
-    <div class="card">
-        <div class="card-header">
-            <h3>Cargos a Elegir</h3>
-        </div>
-        <div class="card-body" style="padding: 0;">
-            <ul class="list-group">
-                <li *ngFor="let pos of election()?.positions" class="list-item">
-                    {{ pos.title }}
-                </li>
-            </ul>
-        </div>
-    </div>
-  </div>
-
-  <!-- Candidate Lists -->
-  <div class="span-8">
-    <div class="card">
-      <div class="card-header">
-        <div>
-            <h3>Listas Inscritas</h3>
-            <p>Agrupaciones políticas y candidatos.</p>
-        </div>
-        <button class="btn primary" *ngIf="!showCreateListForm()" (click)="toggleCreateList()">
-            + Nueva Lista
-        </button>
-      </div>
-      
-      <!-- Create List Form -->
-      <div class="card-body" *ngIf="showCreateListForm()" style="background: var(--bg-subtle); border-bottom: 1px solid var(--border-color); padding: 1.5rem;">
-        <h4 style="margin-top: 0; margin-bottom: 1.5rem;">Registrar Nueva Lista</h4>
-        <form [formGroup]="listForm" (ngSubmit)="createList()" class="grid">
-            <div class="span-6 form-group">
-                <label>Partido Político</label>
-                <select class="form-control" formControlName="politicalPartyId">
-                    <option value="">Selecciona...</option>
-                    <option *ngFor="let p of parties()" [value]="p.id">{{ p.name }} ({{ p.acronym }})</option>
-                </select>
-            </div>
-            <div class="span-6 form-group">
-                <label>Número de Lista</label>
-                <input type="number" class="form-control" formControlName="number" placeholder="Opcional" />
-            </div>
-            <div class="span-12 form-group">
-                <label>Nombre de la Lista</label>
-                <input class="form-control" formControlName="name" placeholder="Ej: Lista Unidad" />
-            </div>
-            <div class="span-12" style="text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end;">
-                <button type="button" class="btn ghost" (click)="toggleCreateList()">Cancelar</button>
-                <button type="submit" class="btn primary">Guardar Lista</button>
-            </div>
-        </form>
-      </div>
-
-      <!-- Lists Display -->
-      <div class="card-body">
-        <div *ngIf="election()?.candidateLists?.length === 0" class="empty-state">
-            <p>No hay listas registradas aún.</p>
-        </div>
-
-        <div *ngFor="let list of election()!.candidateLists" class="list-card" style="border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 1.5rem; overflow: hidden;">
-            <div class="list-header" style="background: var(--bg-hover); padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <div style="background: var(--primary); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
-                        {{ list.number || '#' }}
+    <!-- Header -->
+    <div class="span-12">
+        <div class="card">
+            <!-- View Mode -->
+            <div class="card-body" *ngIf="!editMode()"
+                style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div class="breadcrumb" style="margin-bottom: 0.5rem;">
+                        <a routerLink="/admin/elections" style="text-decoration: none; color: inherit;">Elecciones</a> /
+                        Detalle
                     </div>
-                    <div>
-                        <h4 style="margin: 0;">{{ list.name }}</h4>
-                        <small>{{ list.politicalParty?.name }}</small>
+                    <h2 style="margin: 0;">{{ election()?.name }}</h2>
+                    <div class="text-muted" style="margin-top: 0.25rem;">
+                        {{ getScopeLabel(election()!.scope) }} • {{ getStatusLabel(election()!.status) }}
                     </div>
-                    <span *ngIf="isListComplete(list)" class="badge" style="background: var(--success); color: white;">✓ Completa</span>
+                    <div class="text-muted" style="margin-top: 0.5rem; font-size: 0.9em;">
+                        <strong>Inicio:</strong> {{ election()?.startDate | date:'medium' }} •
+                        <strong>Fin:</strong> {{ election()?.endDate | date:'medium' }}
+                    </div>
                 </div>
                 <div style="display: flex; gap: 0.5rem;">
-                    <button 
-                        class="btn sm ghost" 
-                        (click)="openAddCandidate(list.id)"
-                        [disabled]="isListComplete(list)"
-                        [title]="isListComplete(list) ? 'Esta lista ya tiene candidatos para todos los cargos' : 'Agregar candidato'"
-                    >+ Candidato</button>
-                    <button 
-                        class="btn sm danger" 
-                        (click)="deleteList(list.id, list.name)"
-                        title="Eliminar lista"
-                    >🗑️</button>
+                    <a [routerLink]="['/admin/elections', election()!.id, 'results']" class="btn primary">
+                        {{ election()!.status === 'COMPLETED' ? 'Ver Resultados' : '-' }}
+                    </a>
+                    <button class="btn ghost" (click)="toggleEditMode()">Editar Elección</button>
                 </div>
             </div>
 
-            <div class="list-candidates" style="padding: 1rem;">
-                <!-- Add Candidate Inline Form -->
-                <div *ngIf="activeListForCandidateStr() === list.id" style="background: var(--bg-subtle); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
-                    <h5>Agregar Candidato a {{ list.name }}</h5>
-                    <form [formGroup]="candidateForm" (ngSubmit)="saveCandidate()" class="grid">
-                        <div class="span-6 form-group">
-                            <label>Cargo</label>
-                            <select class="form-control" formControlName="positionId">
-                                <option value="">Selecciona...</option>
-                                <option *ngFor="let pos of election()!.positions" [value]="pos.id">{{ pos.title }}</option>
-                            </select>
-                        </div>
-                        <div class="span-6 form-group">
-                            <label>DNI</label>
-                            <input class="form-control" formControlName="dni" />
-                        </div>
-                        <div class="span-6 form-group">
-                            <label>Nombres</label>
-                            <input class="form-control" formControlName="firstName" />
-                        </div>
-                        <div class="span-6 form-group">
-                            <label>Apellidos</label>
-                            <input class="form-control" formControlName="lastName" />
-                        </div>
-                        <div class="span-12" style="text-align: right;">
-                             <button type="button" class="btn ghost sm" (click)="cancelAddCandidate()">Cancelar</button>
-                             <button type="submit" class="btn primary sm" style="margin-left: 0.5rem;">Agregar</button>
-                        </div>
-                    </form>
+            <!-- Edit Mode -->
+            <div class="card-body" *ngIf="editMode()">
+                <div class="breadcrumb" style="margin-bottom: 1rem;">
+                    <a routerLink="/admin/elections" style="text-decoration: none; color: inherit;">Elecciones</a> /
+                    Editar
+                </div>
+                <form [formGroup]="editForm" (ngSubmit)="updateElection()" class="grid">
+                    <div class="span-8 form-group">
+                        <label>Nombre de la Elección</label>
+                        <input class="form-control" formControlName="name" />
+                    </div>
+                    <div class="span-4 form-group">
+                        <label>Estado</label>
+                        <select class="form-control" formControlName="status">
+                            <option value="DRAFT">Borrador</option>
+                            <option value="OPEN">Abierta</option>
+                            <option value="CLOSED">Cerrada</option>
+                            <option value="COMPLETED">Completada</option>
+                        </select>
+                    </div>
+                    <div class="span-6 form-group">
+                        <label>Fecha de Inicio</label>
+                        <input type="datetime-local" class="form-control" formControlName="startDate" />
+                    </div>
+                    <div class="span-6 form-group">
+                        <label>Fecha de Fin</label>
+                        <input type="datetime-local" class="form-control" formControlName="endDate" />
+                    </div>
+                    <div class="span-12 form-group">
+                        <label>Descripción</label>
+                        <textarea class="form-control" rows="2" formControlName="description"></textarea>
+                    </div>
+                    <div class="span-12"
+                        style="text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end;">
+                        <button type="button" class="btn ghost" (click)="cancelEdit()">Cancelar</button>
+                        <button type="submit" class="btn primary">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Positions -->
+    <div class="span-4">
+        <div class="card">
+            <div class="card-header">
+                <h3>Cargos a Elegir</h3>
+            </div>
+            <div class="card-body" style="padding: 0;">
+                <ul class="list-group">
+                    <li *ngFor="let pos of election()?.positions" class="list-item">
+                        {{ pos.title }}
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Candidate Lists -->
+    <div class="span-8">
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h3>Listas Inscritas</h3>
+                    <p>Agrupaciones políticas y candidatos.</p>
+                </div>
+                <button class="btn primary" *ngIf="!showCreateListForm()" (click)="toggleCreateList()">
+                    + Nueva Lista
+                </button>
+            </div>
+
+            <!-- Create List Form -->
+            <div class="card-body" *ngIf="showCreateListForm()"
+                style="background: var(--bg-subtle); border-bottom: 1px solid var(--border-color); padding: 1.5rem;">
+                <h4 style="margin-top: 0; margin-bottom: 1.5rem;">Registrar Nueva Lista</h4>
+                <form [formGroup]="listForm" (ngSubmit)="createList()" class="grid">
+                    <div class="span-6 form-group">
+                        <label>Partido Político</label>
+                        <select class="form-control" formControlName="politicalPartyId">
+                            <option value="">Selecciona...</option>
+                            <option *ngFor="let p of parties()" [value]="p.id">{{ p.name }} ({{ p.acronym }})</option>
+                        </select>
+                    </div>
+                    <div class="span-6 form-group">
+                        <label>Número de Lista</label>
+                        <input type="number" class="form-control" formControlName="number" placeholder="Opcional" />
+                    </div>
+                    <div class="span-12 form-group">
+                        <label>Nombre de la Lista</label>
+                        <input class="form-control" formControlName="name" placeholder="Ej: Lista Unidad" />
+                    </div>
+                    <div class="span-12"
+                        style="text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end;">
+                        <button type="button" class="btn ghost" (click)="toggleCreateList()">Cancelar</button>
+                        <button type="submit" class="btn primary">Guardar Lista</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Lists Display -->
+            <div class="card-body">
+                <div *ngIf="election()?.candidateLists?.length === 0" class="empty-state">
+                    <p>No hay listas registradas aún.</p>
                 </div>
 
-                <div class="candidates-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
-                    <div *ngFor="let pos of election()!.positions" class="position-slot" style="background: var(--bg-card); border: 1px dashed var(--border-color); padding: 0.75rem; border-radius: 4px;">
-                        <div class="text-muted" style="font-size: 0.8em; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">{{ pos.title }}</div>
-                        
-                        <div *ngIf="getCandidatesForPosition(list, pos.id).length === 0" class="text-muted" style="font-style: italic; font-size: 0.9em;">
-                            Vacante
-                        </div>
-                        
-                        <div *ngFor="let candidate of getCandidatesForPosition(list, pos.id)">
-                            <!-- Edit Mode -->
-                            <div *ngIf="editingCandidateId() === candidate.id" style="background: var(--bg-subtle); padding: 0.75rem; border-radius: 4px; margin-bottom: 0.5rem;">
-                                <form [formGroup]="candidateForm" (ngSubmit)="updateCandidate()">
-                                    <div class="form-group">
-                                        <label>Nombres</label>
-                                        <input class="form-control" formControlName="firstName" />
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Apellidos</label>
-                                        <input class="form-control" formControlName="lastName" />
-                                    </div>
-                                    <div class="form-group">
-                                        <label>DNI</label>
-                                        <input class="form-control" formControlName="dni" />
-                                    </div>
-                                    <div style="text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 0.5rem;">
-                                        <button type="button" class="btn ghost sm" (click)="cancelEditCandidate()">Cancelar</button>
-                                        <button type="submit" class="btn primary sm">Guardar</button>
-                                    </div>
-                                </form>
+                <div *ngFor="let list of election()!.candidateLists" class="list-card"
+                    style="border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 1.5rem; overflow: hidden;">
+                    <div class="list-header"
+                        style="background: var(--bg-hover); padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div
+                                style="background: var(--primary); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                                {{ list.number || '#' }}
                             </div>
-                            
-                            <!-- View Mode -->
-                            <div *ngIf="editingCandidateId() !== candidate.id" style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.5rem; border-radius: 4px; background: var(--bg-hover); margin-bottom: 0.5rem;">
-                                <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
-                                    <div class="avatar sm">{{ candidate.firstName.charAt(0) }}</div>
-                                    <div style="flex: 1;">
-                                        <div style="font-weight: 500;">{{ candidate.firstName }} {{ candidate.lastName }}</div>
-                                        <div style="font-size: 0.8em; color: var(--text-secondary);">{{ candidate.dni || 'S/DNI' }}</div>
-                                    </div>
+                            <div>
+                                <h4 style="margin: 0;">{{ list.name }}</h4>
+                                <small>{{ list.politicalParty?.name }}</small>
+                            </div>
+                            <span *ngIf="isListComplete(list)" class="badge"
+                                style="background: var(--success); color: white;">✓ Completa</span>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn sm ghost" (click)="openAddCandidate(list.id)"
+                                [disabled]="isListComplete(list)"
+                                [title]="isListComplete(list) ? 'Esta lista ya tiene candidatos para todos los cargos' : 'Agregar candidato'">+
+                                Candidato</button>
+                            <button class="btn sm danger" (click)="deleteList(list.id, list.name)"
+                                title="Eliminar lista">🗑️</button>
+                        </div>
+                    </div>
+
+                    <div class="list-candidates" style="padding: 1rem;">
+                        <!-- Add Candidate Inline Form -->
+                        <div *ngIf="activeListForCandidateStr() === list.id"
+                            style="background: var(--bg-subtle); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+                            <h5>Agregar Candidato a {{ list.name }}</h5>
+                            <form [formGroup]="candidateForm" (ngSubmit)="saveCandidate()" class="grid">
+                                <div class="span-6 form-group">
+                                    <label>Cargo</label>
+                                    <select class="form-control" formControlName="positionId">
+                                        <option value="">Selecciona...</option>
+                                        <option *ngFor="let pos of election()!.positions" [value]="pos.id">{{ pos.title
+                                            }}</option>
+                                    </select>
                                 </div>
-                                <div style="display: flex; gap: 0.25rem;">
-                                    <button 
-                                        class="btn ghost sm" 
-                                        (click)="editCandidate(candidate)"
-                                        title="Editar candidato"
-                                        style="padding: 0.25rem 0.5rem; font-size: 0.8em;"
-                                    >✏️</button>
-                                    <button 
-                                        class="btn danger sm" 
-                                        (click)="deleteCandidate(candidate.id, candidate.firstName + ' ' + candidate.lastName)"
-                                        title="Eliminar candidato"
-                                        style="padding: 0.25rem 0.5rem; font-size: 0.8em;"
-                                    >🗑️</button>
+                                <div class="span-6 form-group">
+                                    <label>DNI</label>
+                                    <input class="form-control" formControlName="dni" />
+                                </div>
+                                <div class="span-6 form-group">
+                                    <label>Nombres</label>
+                                    <input class="form-control" formControlName="firstName" />
+                                </div>
+                                <div class="span-6 form-group">
+                                    <label>Apellidos</label>
+                                    <input class="form-control" formControlName="lastName" />
+                                </div>
+                                <div class="span-12" style="text-align: right;">
+                                    <button type="button" class="btn ghost sm"
+                                        (click)="cancelAddCandidate()">Cancelar</button>
+                                    <button type="submit" class="btn primary sm"
+                                        style="margin-left: 0.5rem;">Agregar</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="candidates-grid"
+                            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
+                            <div *ngFor="let pos of election()!.positions" class="position-slot"
+                                style="background: var(--bg-card); border: 1px dashed var(--border-color); padding: 0.75rem; border-radius: 4px;">
+                                <div class="text-muted"
+                                    style="font-size: 0.8em; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    {{ pos.title }}</div>
+
+                                <div *ngIf="getCandidatesForPosition(list, pos.id).length === 0" class="text-muted"
+                                    style="font-style: italic; font-size: 0.9em;">
+                                    Vacante
+                                </div>
+
+                                <div *ngFor="let candidate of getCandidatesForPosition(list, pos.id)">
+                                    <!-- Edit Mode -->
+                                    <div *ngIf="editingCandidateId() === candidate.id"
+                                        style="background: var(--bg-subtle); padding: 0.75rem; border-radius: 4px; margin-bottom: 0.5rem;">
+                                        <form [formGroup]="candidateForm" (ngSubmit)="updateCandidate()">
+                                            <div class="form-group">
+                                                <label>Nombres</label>
+                                                <input class="form-control" formControlName="firstName" />
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Apellidos</label>
+                                                <input class="form-control" formControlName="lastName" />
+                                            </div>
+                                            <div class="form-group">
+                                                <label>DNI</label>
+                                                <input class="form-control" formControlName="dni" />
+                                            </div>
+                                            <div
+                                                style="text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 0.5rem;">
+                                                <button type="button" class="btn ghost sm"
+                                                    (click)="cancelEditCandidate()">Cancelar</button>
+                                                <button type="submit" class="btn primary sm">Guardar</button>
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                    <!-- View Mode -->
+                                    <div *ngIf="editingCandidateId() !== candidate.id"
+                                        style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.5rem; border-radius: 4px; background: var(--bg-hover); margin-bottom: 0.5rem;">
+                                        <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
+                                            <div class="avatar sm">{{ candidate.firstName.charAt(0) }}</div>
+                                            <div style="flex: 1;">
+                                                <div style="font-weight: 500;">{{ candidate.firstName }} {{
+                                                    candidate.lastName }}</div>
+                                                <div style="font-size: 0.8em; color: var(--text-secondary);">{{
+                                                    candidate.dni || 'S/DNI' }}</div>
+                                            </div>
+                                        </div>
+                                        <div style="display: flex; gap: 0.25rem;">
+                                            <button class="btn ghost sm" (click)="editCandidate(candidate)"
+                                                title="Editar candidato"
+                                                style="padding: 0.25rem 0.5rem; font-size: 0.8em;">✏️</button>
+                                            <button class="btn danger sm"
+                                                (click)="deleteCandidate(candidate.id, candidate.firstName + ' ' + candidate.lastName)"
+                                                title="Eliminar candidato"
+                                                style="padding: 0.25rem 0.5rem; font-size: 0.8em;">🗑️</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
-
-      </div>
     </div>
-  </div>
 </div>

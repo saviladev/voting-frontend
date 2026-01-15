@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewEncapsulation, signal, HostListener } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewEncapsulation, signal, HostListener } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
-import { filter, firstValueFrom } from 'rxjs';
+import { Subject, filter, firstValueFrom, takeUntil } from 'rxjs';
+import { AuthUser } from '../../../core/models/auth.models';
 import { AuthService } from '../../../core/services/auth.service';
 import { ChaptersService } from '../../../core/services/chapters.service';
 import { PartiesService } from '../../../core/services/parties.service';
@@ -22,13 +23,18 @@ interface NavItem {
   imports: [CommonModule, IonContent, RouterOutlet, RouterLink, RouterLinkActive],
   encapsulation: ViewEncapsulation.None,
 })
-export class AdminPage implements OnInit {
+export class AdminPage implements OnInit, OnDestroy {
   sidebarCollapsed = signal(false);
-  
-  // Section header properties, now dynamic
+
+  // Section header properties
   sectionTitle = '';
   sectionDescription = '';
   breadcrumbPrefix = '';
+
+  // User properties
+  currentUserName = 'Usuario';
+  currentUserRole = 'Invitado';
+  isMember = false;
 
   private readonly headerConfig = {
     SystemAdmin: {
@@ -45,9 +51,9 @@ export class AdminPage implements OnInit {
       title: 'Panel',
       description: 'Bienvenido al sistema.',
       breadcrumb: 'Usuario',
-    }
+    },
   };
-  
+
   navItems: NavItem[] = [];
 
   usersCount = signal(0);
@@ -80,6 +86,8 @@ export class AdminPage implements OnInit {
     { label: 'Mi Perfil', link: '/admin/profile', icon: 'PE' },
   ];
 
+  private destroy$ = new Subject<void>();
+
   constructor(
     private authService: AuthService,
     private router: Router,
@@ -95,72 +103,83 @@ export class AdminPage implements OnInit {
   }
 
   ngOnInit(): void {
-    this.setupNavigation();
-    this.setupHeaderContent();
     this.checkScreenSize();
 
-    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
-      this.updateSectionMeta();
-      if (this.isMobile()) {
-        this.sidebarCollapsed.set(true);
-      }
+    this.authService.user$.pipe(takeUntil(this.destroy$)).subscribe((user) => {
+      this.updateComponentStateForUser(user);
     });
 
-    if (!this.authService.hasRole('Member')) {
-      void this.loadSidebarStats();
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => {
+        this.updateSectionMeta();
+        if (this.isMobile()) {
+          this.sidebarCollapsed.set(true);
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private updateComponentStateForUser(user: AuthUser | null): void {
+    if (user) {
+      const isSystemAdmin = user.roles.includes('SystemAdmin');
+      this.isMember = user.roles.includes('Member');
+
+      // Update user display info
+      this.currentUserName = `${user.firstName} ${user.lastName}`.trim();
+      const roleMap: Record<string, string> = {
+        SystemAdmin: 'Administrador',
+        PadronManager: 'Gestor de Padrón',
+        Member: 'Miembro',
+      };
+      this.currentUserRole = user.roles.map((r) => roleMap[r] || r).join(', ');
+
+      // Update navigation
+      this.navItems = this.isMember ? this.memberNavItems : this.adminNavItems;
+
+      // Update header
+      const config = isSystemAdmin ? this.headerConfig.SystemAdmin : this.isMember ? this.headerConfig.Member : this.headerConfig.default;
+      this.sectionTitle = config.title;
+      this.sectionDescription = config.description;
+      this.breadcrumbPrefix = config.breadcrumb;
+      
+      // Load stats for admins
+      if (isSystemAdmin) {
+        void this.loadSidebarStats();
+      } else {
+        this.usersCount.set(0);
+        this.chaptersCount.set(0);
+        this.partiesCount.set(0);
+      }
+    } else {
+      // Handle logged out state
+      this.currentUserName = 'Usuario';
+      this.currentUserRole = 'Invitado';
+      this.isMember = false;
+      this.navItems = [];
+      this.sectionTitle = this.headerConfig.default.title;
+      this.sectionDescription = this.headerConfig.default.description;
+      this.breadcrumbPrefix = this.headerConfig.default.breadcrumb;
+      this.usersCount.set(0);
+      this.chaptersCount.set(0);
+      this.partiesCount.set(0);
     }
+    
+    // This needs to be called after state is updated to reflect the correct title on load
+    this.updateSectionMeta();
   }
 
   private checkScreenSize() {
     if (typeof window !== 'undefined') {
       this.sidebarCollapsed.set(window.innerWidth <= 1200);
     }
-  }
-
-  private setupHeaderContent(): void {
-    const user = this.authService.getUser();
-    let config = this.headerConfig.default;
-
-    if (user?.roles.includes('SystemAdmin')) {
-      config = this.headerConfig.SystemAdmin;
-    } else if (user?.roles.includes('Member')) {
-      config = this.headerConfig.Member;
-    }
-    
-    this.sectionTitle = config.title;
-    this.sectionDescription = config.description;
-    this.breadcrumbPrefix = config.breadcrumb;
-  }
-
-  private setupNavigation(): void {
-    if (this.authService.hasRole('Member')) {
-      this.navItems = this.memberNavItems;
-    } else {
-      this.navItems = this.adminNavItems;
-    }
-  }
-
-  get currentUserName(): string {
-    const user = this.authService.getUser();
-    if (!user) return 'Usuario';
-    return `${user.firstName} ${user.lastName}`.trim();
-  }
-
-  get currentUserRole(): string {
-    const user = this.authService.getUser();
-    if (!user || !user.roles?.length) return 'Invitado';
-    
-    const roleMap: Record<string, string> = {
-      SystemAdmin: 'Administrador',
-      PadronManager: 'Gestor de Padrón',
-      Member: 'Miembro'
-    };
-
-    return user.roles.map(r => roleMap[r] || r).join(', ');
-  }
-
-  isMember(): boolean {
-    return this.authService.hasRole('Member');
   }
 
   toggleSidebar() {
@@ -186,9 +205,13 @@ export class AdminPage implements OnInit {
       route = route.firstChild;
     }
     const data = route?.snapshot.data as { title?: string; description?: string } | undefined;
+
+    // Fallback logic for title when route data is not available
+    let currentConfigKey: keyof typeof this.headerConfig = 'default';
+    if(this.authService.hasRole('SystemAdmin')) currentConfigKey = 'SystemAdmin';
+    else if(this.authService.hasRole('Member')) currentConfigKey = 'Member';
     
-    // Use route data if available, otherwise fall back to the role-based defaults
-    const currentConfig = this.headerConfig[this.authService.getUser()?.roles[0] as keyof typeof this.headerConfig] || this.headerConfig.default;
+    const currentConfig = this.headerConfig[currentConfigKey];
     this.sectionTitle = data?.title ?? currentConfig.title;
     this.sectionDescription = data?.description ?? currentConfig.description;
   }
