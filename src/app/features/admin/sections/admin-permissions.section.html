@@ -13,7 +13,7 @@
       />
     </div>
     <div class="card-body">
-      <table class="table">
+      <table class="table desktop-only">
         <thead>
           <tr>
             <th>Clave</th>
@@ -34,6 +34,25 @@
           </tr>
         </tbody>
       </table>
+
+      <!-- Mobile Permission Cards -->
+      <div class="mobile-only permission-cards">
+        <div *ngFor="let permission of pagedPermissions()" class="mobile-card">
+          <div class="card-mobile-header">
+            <div class="mobile-title-status">
+              <div class="mobile-title">{{ permission.key }}</div>
+            </div>
+            <div class="mobile-subtitle">{{ permission.description || 'Sin descripción' }}</div>
+          </div>
+          <div class="card-mobile-body">
+            <div class="actions-row">
+              <button class="btn ghost" (click)="editPermission(permission)">Editar</button>
+              <button class="btn danger" (click)="deletePermission(permission)">Eliminar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="table-footer">
         <button class="btn ghost" (click)="changePage(permissionPage, permissionPages(), -1)">
           Anterior

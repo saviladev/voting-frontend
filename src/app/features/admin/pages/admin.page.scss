@@ -917,10 +917,8 @@ router-outlet {
 //   }
 // }
 
-// --- ELECTION MODULE RESPONSIVE OVERRIDES ---
-app-admin-elections-section,
-app-admin-election-detail,
-app-admin-election-results {
+// --- GLOBAL RESPONSIVE OVERRIDES ---
+.content > * {
   // Force grid to 1 column on tablets and mobile
   @media (max-width: 992px) {
     .grid {
@@ -928,16 +926,34 @@ app-admin-election-results {
       gap: 16px !important;
     }
 
-    .span-8,
-    .span-6,
-    .span-4,
-    .span-12 {
+    .span-8, .span-7, .span-6, .span-5, .span-4, .span-3, .span-12 {
       grid-column: span 1 !important;
     }
 
     // Make cards take full width
     .card {
       width: 100% !important;
+    }
+    
+    // Quick actions flex wrap
+    .quick-actions {
+        flex-direction: column !important;
+        gap: 10px !important;
+        
+        .btn {
+            width: 100% !important;
+            text-align: center;
+        }
+    }
+    
+    // Form rows within sections
+    .form-row {
+        flex-direction: column !important;
+        gap: 0 !important;
+        
+        .span-6, .span-4, .span-3 {
+            width: 100% !important;
+        }
     }
   }
 
@@ -955,8 +971,7 @@ app-admin-election-results {
         align-items: stretch !important;
         gap: 8px !important;
 
-        .form-control,
-        .btn {
+        .form-control, .btn {
           width: 100% !important;
           margin: 0 !important;
         }
@@ -970,71 +985,188 @@ app-admin-election-results {
       padding: 12px !important;
       overflow-x: auto !important;
       -webkit-overflow-scrolling: touch;
-
-      .table {
+      
+      .table:not(.mobile-cards-table) {
         min-width: 600px; // Maintain some readability with scroll
       }
-      .table.desktop-only {
-          display: none !important;
-      }
     }
   }
+}
 
-  // Visibility helpers
-  .desktop-only {
+
+// Global Visibility helpers
+.desktop-only {
+  @media (max-width: 768px) {
+    display: none !important;
+  }
+}
+
+.mobile-only {
+  display: none;
+  @media (max-width: 768px) {
+    display: block !important;
+  }
+}
+
+// Modals on mobile
+.modal-overlay {
     @media (max-width: 768px) {
-      display: none !important;
+        padding: 12px !important;
     }
-  }
+}
 
-  .mobile-only {
-    display: none;
+.modal-card {
     @media (max-width: 768px) {
-      display: block !important;
+        width: 100% !important;
+        max-height: 90vh !important;
+        overflow-y: auto !important;
+        padding: 16px !important;
+        
+        .modal-header {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 10px !important;
+            
+            .btn {
+                width: 100%;
+            }
+        }
     }
-  }
+}
 
-  // Mobile card styles
-  .election-mobile-card {
+// --- ELECTION & USER SPECIFIC MOBILE CARDS ---
+app-admin-elections-section,
+app-admin-users-section,
+app-admin-roles-section,
+app-admin-permissions-section,
+app-admin-branches-section,
+app-admin-associations-section,
+app-admin-specialties-section,
+app-admin-chapters-section,
+app-admin-parties-section,
+app-admin-audit-section,
+app-admin-election-results {
+    .election-mobile-card, .user-mobile-card, .mobile-card {
       background: var(--admin-bg);
       border: 1px solid var(--admin-border);
-      border-radius: 10px;
-      margin-bottom: 12px;
-      padding: 12px;
+      border-radius: 12px;
+      margin-bottom: 14px;
+      padding: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 
       .card-mobile-header {
-          margin-bottom: 10px;
+          margin-bottom: 12px;
           border-bottom: 1px solid var(--admin-border);
-          padding-bottom: 8px;
+          padding-bottom: 10px;
 
-          .name-status {
+          .mobile-title-status {
               display: flex;
               justify-content: space-between;
               align-items: center;
-              gap: 8px;
+              gap: 12px;
               
-              .election-name {
-                  font-weight: 600;
-                  font-size: 1rem;
+              .mobile-title {
+                  font-weight: 700;
+                  font-size: 1.05rem;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+              }
+
+              .status {
+                  font-size: 0.75rem;
+                  padding: 4px 8px;
+                  border-radius: 20px;
+                  background: #f1f2f6;
+                  &.active {
+                      background: #e1f5fe;
+                      color: #0288d1;
+                  }
               }
           }
 
-          .scope-label {
+          .mobile-subtitle {
               font-size: 0.85rem;
               color: var(--admin-muted);
-              margin-top: 4px;
+              margin-top: 6px;
+              display: flex;
+              align-items: center;
+              gap: 6px;
           }
       }
 
       .card-mobile-body {
-          .dates {
+          .mobile-info-row {
               font-size: 0.85rem;
-              margin-bottom: 12px;
+              margin-bottom: 8px;
+              display: flex;
+              justify-content: space-between;
               color: var(--admin-ink);
+              
+              strong {
+                  color: var(--admin-muted);
+                  font-weight: 500;
+              }
+          }
+          
+          .actions-row {
+              margin-top: 14px;
+              display: flex;
+              gap: 10px;
+              
+              .btn {
+                  flex: 1;
+                  padding: 10px;
+                  font-size: 0.9rem;
+              }
+          }
+
+          // Special style for results progress bars
+          .progress-bar-container {
+              margin-top: 10px;
+              background: #f0f0f0;
+              height: 20px;
+              border-radius: 10px;
+              overflow: hidden;
+              
+              .progress-bar {
+                  height: 100%;
+                  transition: width 0.3s ease;
+              }
           }
       }
   }
+
+  // Results Specific Mobile Styles
+  .results-tabs {
+      overflow-x: auto;
+      display: flex;
+      gap: 12px;
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+      -webkit-overflow-scrolling: touch;
+      &::-webkit-scrollbar { display: none; }
+      
+      .btn {
+          white-space: nowrap;
+          padding: 8px 16px !important;
+      }
+  }
+
+  .chart-container-mobile {
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 20px !important;
+      
+      .chart-canvas-wrapper {
+          width: 100% !important;
+          height: auto !important;
+          aspect-ratio: 1 / 1;
+          max-width: 260px;
+          margin: 0 auto;
+      }
+  }
 }
+
 
 
 app-admin-election-results {
@@ -1124,19 +1256,98 @@ app-admin-election-detail {
   }
   
   .main {
-      padding: 16px !important;
+      padding: 12px !important;
       min-width: 0;
   }
   
-  .topbar h1 {
-      font-size: 1.4rem !important;
+  .topbar {
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 16px !important;
+      padding: 0 !important; 
+      margin-bottom: 24px !important;
+      width: 100% !important;
+  }
+
+  .topbar-left {
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: flex-start !important;
+      justify-content: flex-start !important;
+      gap: 12px !important;
+      width: 100% !important;
+      text-align: left !important;
+      
+      .burger {
+          margin: 0 !important;
+          padding: 8px !important;
+          background: var(--admin-dark);
+          color: white;
+          border-radius: 8px;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          border: none !important;
+          flex-shrink: 0 !important;
+
+          .burger-icon {
+              width: 24px;
+              height: 24px;
+          }
+      }
+
+      // Ensure the text container inside topbar-left is also left-aligned
+      & > div {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          text-align: left;
+      }
   }
   
-   .topbar-actions {
+  .topbar h1 {
+      font-size: 1.3rem !important;
+      margin: 4px 0 !important;
+      text-align: left !important;
+  }
+
+  .topbar p {
+      font-size: 0.85rem !important;
+      margin: 0 !important;
+      text-align: left !important;
+  }
+
+  .topbar-actions {
+      display: flex !important;
+      justify-content: flex-start !important;
+      width: 100% !important;
+
       .btn {
-          padding: 8px 12px;
-          font-size: 0.85rem;
+          width: 100% !important;
+          justify-content: center !important;
+          display: flex !important;
       }
+  }
+  
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    display: none;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    
+    &.visible {
+        display: block !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
   }
 }
 

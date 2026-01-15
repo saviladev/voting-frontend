@@ -45,7 +45,7 @@
       </div>
     </div>
     <div class="card-body">
-      <table class="table">
+      <table class="table desktop-only">
         <thead>
           <tr>
             <th>Capítulo</th>
@@ -72,6 +72,28 @@
           </tr>
         </tbody>
       </table>
+
+      <!-- Mobile Chapter Cards -->
+      <div class="mobile-only chapter-cards">
+        <div *ngFor="let chapter of pagedChapters()" class="mobile-card">
+          <div class="card-mobile-header">
+            <div class="mobile-title-status">
+              <div class="mobile-title">{{ chapter.name }}</div>
+            </div>
+            <div class="mobile-subtitle">{{ chapter.branch?.name }} (Sede)</div>
+          </div>
+          <div class="card-mobile-body">
+            <div class="mobile-info-row">
+              <strong>Especialidades:</strong> {{ getSpecialtiesCount(chapter) }}
+            </div>
+            <div class="actions-row">
+              <button class="btn ghost" (click)="editChapter(chapter)">Editar</button>
+              <button class="btn danger" (click)="deleteChapter(chapter)">Eliminar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="table-footer">
         <button class="btn ghost" (click)="changePage(chapterPage, chapterPages(), -1)">Anterior</button>
         <span>Página {{ chapterPage() + 1 }} de {{ chapterPages() }}</span>

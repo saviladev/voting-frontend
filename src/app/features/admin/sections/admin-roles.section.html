@@ -13,7 +13,7 @@
       />
     </div>
     <div class="card-body">
-      <table class="table">
+      <table class="table desktop-only">
         <thead>
           <tr>
             <th>Rol</th>
@@ -40,6 +40,28 @@
           </tr>
         </tbody>
       </table>
+
+      <!-- Mobile Role Cards -->
+      <div class="mobile-only role-cards">
+        <div *ngFor="let role of pagedRoles()" class="mobile-card">
+          <div class="card-mobile-header">
+            <div class="mobile-title-status">
+              <div class="mobile-title">{{ role.name }}</div>
+            </div>
+            <div class="mobile-subtitle">{{ role.description || 'Sin descripción' }}</div>
+          </div>
+          <div class="card-mobile-body">
+            <div class="mobile-info-row">
+              <strong>Permisos:</strong> {{ getPermissionsCount(role) }} asignados
+            </div>
+            <div class="actions-row">
+              <button class="btn ghost" (click)="editRole(role)">Editar</button>
+              <button class="btn danger" (click)="deleteRole(role)">Eliminar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="table-footer">
         <button class="btn ghost" (click)="changePage(rolePage, rolePages(), -1)">Anterior</button>
         <span>Página {{ rolePage() + 1 }} de {{ rolePages() }}</span>

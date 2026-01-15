@@ -311,4 +311,9 @@ export class AdminChaptersSection extends AdminListBase implements OnInit {
       this.chapterSpecialtiesOpen.set(false);
     }
   }
+
+  getSpecialtiesCount(chapter: ChapterDto): number {
+    return chapter.specialties?.length ?? 0;
+  }
 }
+

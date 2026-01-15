@@ -24,7 +24,7 @@
       </div>
     </div>
     <div class="card-body">
-      <table class="table">
+      <table class="table desktop-only">
         <thead>
           <tr>
             <th>Nombre</th>
@@ -59,6 +59,42 @@
           </tr>
         </tbody>
       </table>
+
+      <!-- Mobile Party Cards -->
+      <div class="mobile-only party-cards">
+        <div *ngFor="let party of pagedParties()" class="mobile-card">
+          <div class="card-mobile-header">
+            <div class="mobile-title-status">
+              <div class="mobile-title">{{ party.name }}</div>
+              <span class="status" [class.active]="party.isActive">
+                {{ party.isActive ? 'Activo' : 'Inactivo' }}
+              </span>
+            </div>
+            <div class="mobile-subtitle">
+               <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="opacity: 0.7;">
+                  <path d="M12.5 10c0-1.65-1.35-3-3-3s-3 1.35-3 3 1.35 3 3 3 3-1.35 3-3zm-3 1c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm6.5 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm1.5-1.78l-.33.33a.48.48 0 01-.7 0l-.33-.33c-.15-.15-.4-.15-.55 0l-.33.33a.48.48 0 01-.7 0l-.33-.33c-.15-.15-.4-.15-.55 0l-.33.33a.48.48 0 01-.7 0l-.33-.33c-.15-.15-.4-.15-.55 0l-.33.33a.48.48 0 01-.7 0l-.33-.33a.48.48 0 010-.7l.33-.33c.15-.15.15-.4 0-.55l-.33-.33a.48.48 0 010-.7l.33-.33c.15-.15.4-.15.55 0l.33.33a.48.48 0 01.7 0l.33-.33c.15-.15.4-.15.55 0l.33.33a.48.48 0 01.7 0l.33-.33c.15-.15.4-.15.55 0l.33.33a.48.48 0 01.7 0l.33-.33c.15-.15.4-.15.55 0l.33.33c.19.19.19.51 0 .7z"/>
+               </svg>
+               <strong>{{ party.acronym }}</strong> • {{ getPartyScopeLabel(party.scope) }}
+            </div>
+          </div>
+          <div class="card-mobile-body">
+            <div class="mobile-info-row">
+              <strong>Entidad asignada:</strong>
+              <span>
+                <span *ngIf="party.scope === 'ASSOCIATION'">{{ party.association?.name || '—' }}</span>
+                <span *ngIf="party.scope === 'BRANCH'">{{ party.branch?.name || '—' }}</span>
+                <span *ngIf="party.scope === 'CHAPTER'">{{ party.chapter?.name || '—' }}</span>
+              </span>
+            </div>
+            <div class="actions-row">
+              <button class="btn ghost" (click)="editParty(party)">Editar</button>
+              <button class="btn danger" (click)="deleteParty(party)">Eliminar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
       <div class="table-footer">
         <button class="btn ghost" (click)="changePage(partyPage, partyPages(), -1)">Anterior</button>
         <span>Página {{ partyPage() + 1 }} de {{ partyPages() }}</span>

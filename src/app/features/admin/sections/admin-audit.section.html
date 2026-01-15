@@ -16,7 +16,7 @@
       </div>
     </div>
     <div class="card-body">
-      <table class="table">
+      <table class="table desktop-only">
         <thead>
           <tr>
             <th>Fecha</th>
@@ -40,6 +40,40 @@
           </tr>
         </tbody>
       </table>
+
+      <!-- Mobile Audit Cards -->
+      <div class="mobile-only audit-cards">
+        <div *ngFor="let log of pagedAudit()" class="mobile-card">
+          <div class="card-mobile-header">
+            <div class="mobile-title-status">
+              <div class="mobile-title">{{ log.action }}</div>
+              <div class="status active">{{ log.createdAt | date: 'HH:mm' }}</div>
+            </div>
+            <div class="mobile-subtitle">
+               <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="opacity: 0.7;">
+                  <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm7 16H5V5h2v3h10V5h2v14z"/>
+               </svg>
+               {{ log.entity }}
+            </div>
+          </div>
+          <div class="card-mobile-body">
+            <div class="mobile-info-row">
+                <strong>Ejecutado por:</strong>
+                <span>{{ log.user ? log.user.firstName + ' ' + log.user.lastName : 'Sistema' }}</span>
+            </div>
+            <div class="mobile-info-row">
+               <strong>DNI / ID:</strong>
+               <span>{{ log.user ? log.user.dni : '-' }}</span>
+            </div>
+            <div class="mobile-info-row">
+                <strong>Fecha:</strong> 
+                <span>{{ log.createdAt | date: 'dd/MM/yyyy' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
       <div class="table-footer">
         <button class="btn ghost" (click)="changePage(auditPage, auditPages(), -1)">Anterior</button>
         <span>Página {{ auditPage() + 1 }} de {{ auditPages() }}</span>

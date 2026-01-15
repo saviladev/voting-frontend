@@ -25,7 +25,7 @@
       </div>
     </div>
     <div class="card-body">
-      <table class="table">
+      <table class="table desktop-only">
         <thead>
           <tr>
             <th>Especialidad</th>
@@ -46,6 +46,25 @@
           </tr>
         </tbody>
       </table>
+
+      <!-- Mobile Specialty Cards -->
+      <div class="mobile-only specialty-cards">
+        <div *ngFor="let specialty of pagedSpecialties()" class="mobile-card">
+          <div class="card-mobile-header">
+            <div class="mobile-title-status">
+              <div class="mobile-title">{{ specialty.name }}</div>
+            </div>
+            <div class="mobile-subtitle">{{ specialty.association?.name || 'Sin asociación' }}</div>
+          </div>
+          <div class="card-mobile-body">
+            <div class="actions-row">
+              <button class="btn ghost" (click)="editSpecialty(specialty)">Editar</button>
+              <button class="btn danger" (click)="deleteSpecialty(specialty)">Eliminar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="table-footer">
         <button class="btn ghost" (click)="changePage(specialtyPage, specialtyPages(), -1)">
           Anterior

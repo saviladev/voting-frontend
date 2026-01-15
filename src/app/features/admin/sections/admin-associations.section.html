@@ -13,7 +13,7 @@
       />
     </div>
     <div class="card-body">
-      <table class="table">
+      <table class="table desktop-only">
         <thead>
           <tr>
             <th>Nombre</th>
@@ -32,6 +32,24 @@
           </tr>
         </tbody>
       </table>
+
+      <!-- Mobile Association Cards -->
+      <div class="mobile-only association-cards">
+        <div *ngFor="let association of pagedAssociations()" class="mobile-card">
+          <div class="card-mobile-header">
+            <div class="mobile-title-status">
+              <div class="mobile-title">{{ association.name }}</div>
+            </div>
+          </div>
+          <div class="card-mobile-body">
+            <div class="actions-row">
+              <button class="btn ghost" (click)="editAssociation(association)">Editar</button>
+              <button class="btn danger" (click)="deleteAssociation(association)">Eliminar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="table-footer">
         <button class="btn ghost" (click)="changePage(associationPage, associationPages(), -1)">
           Anterior

@@ -119,4 +119,9 @@ export class AdminRolesSection extends AdminListBase implements OnInit {
     await this.loadRoles();
     this.assignPermissionsForm.reset({ roleId: '', permissions: [] });
   }
+
+  getPermissionsCount(role: RoleDto): number {
+    return role.permissions?.length ?? 0;
+  }
 }
+

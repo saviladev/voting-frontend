@@ -37,7 +37,7 @@
       <!-- Results tabs (only if completed) -->
       <div *ngIf="canViewResults && results()">
         <!-- Tab Navigation -->
-        <div style="display: flex; gap: 0.5rem; border-bottom: 2px solid var(--border-color); margin-bottom: 1.5rem;">
+        <div class="results-tabs">
           <button
             type="button"
             class="btn ghost"
@@ -109,24 +109,24 @@
                 <h4 style="margin: 0;">Distribución de Votos por Lista</h4>
               </div>
               <div class="card-body">
-                <div style="display: flex; gap: 2rem; align-items: center;">
-                  <!-- Legend on left -->
+                <div class="chart-container-mobile" style="display: flex; gap: 2rem; align-items: center;">
+                  <!-- Legend -->
                   <div style="flex: 1;">
                     <div *ngFor="let list of results()!.listResults" style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
-                      <div style="width: 16px; height: 16px; border-radius: 3px;" [style.background]="getColorByListId(list.listId)"></div>
+                      <div style="width: 16px; height: 16px; border-radius: 4px;" [style.background]="getColorByListId(list.listId)"></div>
                       <div style="flex: 1;">
-                        <div style="font-weight: 500;">{{ list.listName }}</div>
-                        <small class="text-muted" *ngIf="list.listNumber || list.partyName">
+                        <div style="font-weight: 600; font-size: 0.95rem;">{{ list.listName }}</div>
+                        <small class="text-muted" *ngIf="list.listNumber || list.partyName" style="font-size: 0.8rem;">
                           <span *ngIf="list.listNumber">N° {{ list.listNumber }}</span>
                           <span *ngIf="list.partyName"> • {{ list.partyName }}</span>
                         </small>
                       </div>
-                      <div style="font-weight: bold; color: var(--primary);">{{ list.percentage.toFixed(1) }}%</div>
+                      <div style="font-weight: 700; color: var(--admin-primary);">{{ list.percentage.toFixed(1) }}%</div>
                     </div>
                   </div>
                   
-                  <!-- Canvas chart on right -->
-                  <div style="width: 300px; height: 300px; display: flex; align-items: center; justify-content: center;">
+                  <!-- Canvas chart -->
+                  <div class="chart-canvas-wrapper" style="width: 300px; height: 300px; display: flex; align-items: center; justify-content: center;">
                     <canvas #pieChart width="300" height="300" style="display: block;"></canvas>
                   </div>
                 </div>
@@ -174,7 +174,7 @@
               <h4 style="margin: 0;">{{ position.positionTitle }}</h4>
             </div>
             <div class="card-body">
-              <table class="table">
+              <table class="table desktop-only">
                 <thead>
                   <tr>
                     <th>Candidato</th>
@@ -198,6 +198,27 @@
                   </tr>
                 </tbody>
               </table>
+
+              <!-- Mobile Results Cards -->
+              <div class="mobile-only result-cards">
+                <div *ngFor="let candidate of position.candidates" class="mobile-card">
+                   <div class="card-mobile-header">
+                      <div class="mobile-title-status">
+                         <div class="mobile-title">{{ candidate.candidateName }}</div>
+                         <div style="font-weight: 700; color: var(--admin-primary);">{{ candidate.voteCount }} v.</div>
+                      </div>
+                      <div class="mobile-subtitle">{{ candidate.listName }}</div>
+                   </div>
+                   <div class="card-mobile-body">
+                      <div class="mobile-info-row">
+                         <strong>Porcentaje:</strong> {{ candidate.percentage.toFixed(2) }}%
+                      </div>
+                      <div class="progress-bar-container">
+                         <div class="progress-bar" [style.background]="getColorByListId(candidate.listId)" [style.width.%]="candidate.percentage"></div>
+                      </div>
+                   </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -215,17 +236,17 @@
               </div>
             </div>
             <div class="card-body">
-              <div style="display: flex; gap: 2rem; margin-bottom: 1rem;">
+              <div style="display: flex; gap: 2rem; margin-bottom: 1rem; flex-wrap: wrap;">
                 <div>
-                  <div class="text-muted">Total de Votos</div>
-                  <div style="font-size: 1.5rem; font-weight: bold;">{{ list.totalVotes }}</div>
+                  <div class="text-muted" style="font-size: 0.85rem;">Total de Votos</div>
+                  <div style="font-size: 1.5rem; font-weight: bold; color: var(--admin-primary);">{{ list.totalVotes }}</div>
                 </div>
                 <div>
-                  <div class="text-muted">Porcentaje</div>
-                  <div style="font-size: 1.5rem; font-weight: bold;">{{ list.percentage.toFixed(2) }}%</div>
+                  <div class="text-muted" style="font-size: 0.85rem;">Porcentaje</div>
+                  <div style="font-size: 1.5rem; font-weight: bold; color: var(--admin-primary);">{{ list.percentage.toFixed(2) }}%</div>
                 </div>
               </div>
-              <div style="background: #f0f0f0; height: 32px; border-radius: 4px; overflow: hidden;">
+              <div style="background: #f0f0f0; height: 20px; border-radius: 10px; overflow: hidden;">
                 <div [style.background]="getColorByListId(list.listId)" style="height: 100%; transition: width 0.3s ease;" [style.width.%]="list.percentage"></div>
               </div>
             </div>
@@ -234,7 +255,7 @@
 
         <!-- Detailed Tab -->
         <div *ngIf="activeTab() === 'detailed'">
-          <table class="table">
+          <table class="table desktop-only">
             <thead>
               <tr>
                 <th>Candidato</th>
@@ -256,6 +277,27 @@
               </tr>
             </tbody>
           </table>
+
+          <!-- Mobile Detailed Cards -->
+          <div class="mobile-only detailed-cards">
+             <div *ngFor="let candidate of results()!.candidateResults" class="mobile-card">
+                 <div class="card-mobile-header">
+                    <div class="mobile-title-status">
+                       <div class="mobile-title">{{ candidate.candidateName }}</div>
+                       <div style="font-weight: 700; color: var(--admin-primary);">{{ candidate.voteCount }} v.</div>
+                    </div>
+                    <div class="mobile-subtitle">{{ candidate.positionTitle }}</div>
+                 </div>
+                 <div class="card-mobile-body">
+                    <div class="mobile-info-row">
+                       <strong>Lista:</strong> {{ candidate.listName }}
+                    </div>
+                    <div class="mobile-info-row">
+                       <strong>Porcentaje:</strong> {{ candidate.percentage.toFixed(2) }}%
+                    </div>
+                 </div>
+             </div>
+          </div>
         </div>
       </div>
     </div>

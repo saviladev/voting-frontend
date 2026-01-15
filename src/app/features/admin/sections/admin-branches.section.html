@@ -25,7 +25,7 @@
       </div>
     </div>
     <div class="card-body">
-      <table class="table">
+      <table class="table desktop-only">
         <thead>
           <tr>
             <th>Sede</th>
@@ -46,6 +46,25 @@
           </tr>
         </tbody>
       </table>
+
+      <!-- Mobile Branch Cards -->
+      <div class="mobile-only branch-cards">
+        <div *ngFor="let branch of pagedBranches()" class="mobile-card">
+          <div class="card-mobile-header">
+            <div class="mobile-title-status">
+              <div class="mobile-title">{{ branch.name }}</div>
+            </div>
+            <div class="mobile-subtitle">{{ branch.association?.name || 'Sin asociación' }}</div>
+          </div>
+          <div class="card-mobile-body">
+            <div class="actions-row">
+              <button class="btn ghost" (click)="editBranch(branch)">Editar</button>
+              <button class="btn danger" (click)="deleteBranch(branch)">Eliminar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="table-footer">
         <button class="btn ghost" (click)="changePage(branchPage, branchPages(), -1)">Anterior</button>
         <span>Página {{ branchPage() + 1 }} de {{ branchPages() }}</span>

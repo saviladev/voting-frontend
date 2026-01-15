@@ -32,7 +32,7 @@
       </div>
     </div>
     <div class="card-body">
-      <table class="table">
+      <table class="table desktop-only">
         <thead>
           <tr>
             <th>DNI</th>
@@ -76,6 +76,34 @@
           </tr>
         </tbody>
       </table>
+
+      <!-- Mobile User Cards -->
+      <div class="mobile-only user-cards">
+        <div *ngFor="let user of pagedUsers()" class="user-mobile-card">
+          <div class="card-mobile-header">
+            <div class="mobile-title-status">
+              <div class="mobile-title">{{ user.firstName }} {{ user.lastName }}</div>
+              <span class="status" [class.active]="user.isActive">
+                {{ user.isActive ? 'Activo' : 'Inactivo' }}
+              </span>
+            </div>
+            <div class="mobile-subtitle">DNI: {{ user.dni }}</div>
+          </div>
+          <div class="card-mobile-body">
+            <div class="mobile-info-row">
+              <strong>Capítulo:</strong> {{ user.chapter?.name || 'S/C' }}
+            </div>
+            <div class="mobile-info-row">
+              <strong>Roles:</strong> {{ getUserRolesLabel(user) }}
+            </div>
+            <div class="actions-row">
+              <button class="btn ghost" (click)="editUser(user)">Editar</button>
+              <button class="btn danger" (click)="deleteUser(user)">Eliminar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="table-footer">
         <button class="btn ghost" (click)="changePage(userPage, userPages(), -1)">Anterior</button>
         <span>Página {{ userPage() + 1 }} de {{ userPages() }}</span>

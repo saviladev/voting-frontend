@@ -92,51 +92,35 @@
 
       <!-- Mobile Election Cards -->
       <div class="mobile-only election-cards">
-        <div
-          *ngFor="let election of pagedElections()"
-          class="election-mobile-card"
-        >
+        <div *ngFor="let election of pagedElections()" class="election-mobile-card">
           <div class="card-mobile-header">
-            <div class="name-status">
-              <div class="election-name">{{ election.name }}</div>
-              <span class="status" [class.active]="election.status === 'OPEN'">
-                {{ getStatusLabel(election.status) }}
-              </span>
+            <div class="mobile-title-status">
+                <div class="mobile-title">{{ election.name }}</div>
+                <span class="status" [class.active]="election.status === 'OPEN'">
+                    {{ getStatusLabel(election.status) }}
+                </span>
             </div>
-            <div class="scope-label">
-              <ng-container [ngSwitch]="election.scope">
-                <span *ngSwitchCase="'ASSOCIATION'"
-                  >{{ election.association?.name }} (Asoc.)</span
-                >
-                <span *ngSwitchCase="'BRANCH'"
-                  >{{ election.branch?.name }} (Sede)</span
-                >
-                <span *ngSwitchCase="'CHAPTER'"
-                  >{{ election.chapter?.name }} (Cap.)</span
-                >
-                <span *ngSwitchDefault
-                  >{{ getScopeLabel(election.scope) }}</span
-                >
-              </ng-container>
+            <div class="mobile-subtitle">
+                <ng-container [ngSwitch]="election.scope">
+                    <span *ngSwitchCase="'ASSOCIATION'">{{ election.association?.name }} (Asoc.)</span>
+                    <span *ngSwitchCase="'BRANCH'">{{ election.branch?.name }} (Sede)</span>
+                    <span *ngSwitchCase="'CHAPTER'">{{ election.chapter?.name }} (Cap.)</span>
+                    <span *ngSwitchDefault>{{ getScopeLabel(election.scope) }}</span>
+                </ng-container>
             </div>
           </div>
           <div class="card-mobile-body">
-            <div class="dates">
-              <div>
-                <strong>Inicia:</strong> {{ election.startDate |
-                date:'shortDate' }}
-              </div>
-              <div>
-                <strong>Finaliza:</strong> {{ election.endDate |
-                date:'shortDate' }}
-              </div>
+            <div class="mobile-info-row">
+              <strong>Inicia:</strong> {{ election.startDate | date:'shortDate' }}
             </div>
-            <button
-              class="btn ghost full-width"
-              (click)="viewDetails(election)"
-            >
-              Gestionar Elección
-            </button>
+            <div class="mobile-info-row">
+              <strong>Finaliza:</strong> {{ election.endDate | date:'shortDate' }}
+            </div>
+            <div class="actions-row">
+              <button class="btn ghost" (click)="viewDetails(election)">
+                Gestionar
+              </button>
+            </div>
           </div>
         </div>
       </div>

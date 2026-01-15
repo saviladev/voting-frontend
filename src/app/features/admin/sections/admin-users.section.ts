@@ -1,10 +1,22 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, effect, inject, runInInjectionContext, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  computed,
+  effect,
+  inject,
+  runInInjectionContext,
+  signal,
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToastController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
 import { AdminListBase } from '../shared/admin-list-base';
-import { AssociationDto, BranchDto, ChapterDto } from '../../../core/models/structure.models';
+import {
+  AssociationDto,
+  BranchDto,
+  ChapterDto,
+} from '../../../core/models/structure.models';
 import { AdminUserDto, RoleDto } from '../../../core/models/rbac.models';
 import { AssociationsService } from '../../../core/services/associations.service';
 import { BranchesService } from '../../../core/services/branches.service';
@@ -41,7 +53,9 @@ export class AdminUsersSection extends AdminListBase implements OnInit {
     email: ['', [Validators.required, Validators.email]],
     associationId: [''],
     branchId: this.fb.nonNullable.control({ value: '', disabled: true }),
-    chapterId: this.fb.nonNullable.control({ value: '', disabled: true }, [Validators.required]),
+    chapterId: this.fb.nonNullable.control({ value: '', disabled: true }, [
+      Validators.required,
+    ]),
     roles: [[] as string[]],
     isActive: [true],
   });
@@ -65,12 +79,14 @@ export class AdminUsersSection extends AdminListBase implements OnInit {
       .filter((user) =>
         this.matchesTerm(
           this.userFilter(),
-          `${user.dni} ${user.firstName} ${user.lastName} ${user.email ?? ''}`,
-        ),
-      ),
+          `${user.dni} ${user.firstName} ${user.lastName} ${user.email ?? ''}`
+        )
+      )
   );
 
-  readonly pagedUsers = computed(() => this.paginate(this.filteredUsers(), this.userPage()));
+  readonly pagedUsers = computed(() =>
+    this.paginate(this.filteredUsers(), this.userPage())
+  );
   readonly userPages = computed(() => this.pageCount(this.filteredUsers()));
 
   private injector = inject(Injector);
@@ -81,7 +97,7 @@ export class AdminUsersSection extends AdminListBase implements OnInit {
     private associationsService: AssociationsService,
     private branchesService: BranchesService,
     private chaptersService: ChaptersService,
-    toastController: ToastController,
+    toastController: ToastController
   ) {
     super(toastController);
   }
@@ -117,7 +133,9 @@ export class AdminUsersSection extends AdminListBase implements OnInit {
   }
 
   async loadAssociations() {
-    this.associations.set(await firstValueFrom(this.associationsService.list()));
+    this.associations.set(
+      await firstValueFrom(this.associationsService.list())
+    );
   }
 
   async loadBranches() {
@@ -168,7 +186,10 @@ export class AdminUsersSection extends AdminListBase implements OnInit {
       return;
     }
     if (!this.editingUserId && !value.password) {
-      await this.notify('La contraseña es obligatoria para crear usuarios.', 'warning');
+      await this.notify(
+        'La contraseña es obligatoria para crear usuarios.',
+        'warning'
+      );
       return;
     }
 
@@ -184,7 +205,7 @@ export class AdminUsersSection extends AdminListBase implements OnInit {
             roles: value.roles,
             isActive: value.isActive,
             password: value.password || undefined,
-          }),
+          })
         );
         await this.notify('Usuario actualizado.');
       } else {
@@ -198,14 +219,20 @@ export class AdminUsersSection extends AdminListBase implements OnInit {
             email: value.email,
             chapterId: value.chapterId,
             roles: value.roles,
-          }),
+          })
         );
         await this.notify('Usuario creado.');
       }
     } catch (error) {
       const message = this.getErrorMessage(error);
-      if (message.includes('User already exists') || message.includes('already exists')) {
-        await this.notify(`Usuario con DNI ${value.dni} ya registrado.`, 'warning');
+      if (
+        message.includes('User already exists') ||
+        message.includes('already exists')
+      ) {
+        await this.notify(
+          `Usuario con DNI ${value.dni} ya registrado.`,
+          'warning'
+        );
         return;
       }
       await this.notify(message || 'No se pudo guardar el usuario.', 'danger');
@@ -213,6 +240,10 @@ export class AdminUsersSection extends AdminListBase implements OnInit {
     }
     this.resetUserForm();
     await this.loadUsers();
+  }
+
+  getUserRolesLabel(user: AdminUserDto): string {
+    return user.roles.map((r) => r.role.name).join(', ');
   }
 
   editUser(user: AdminUserDto) {
@@ -227,7 +258,9 @@ export class AdminUsersSection extends AdminListBase implements OnInit {
       chapterId: user.chapter?.id ?? '',
       associationId: user.chapter?.branch?.association?.id ?? '',
       branchId: user.chapter?.branch?.id ?? '',
-      roles: user.roles.map((role: { role: { name: string } }) => role.role.name),
+      roles: user.roles.map(
+        (role: { role: { name: string } }) => role.role.name
+      ),
       isActive: user.isActive,
     });
     this.userForm.controls.dni.disable({ emitEvent: false });
@@ -254,7 +287,11 @@ export class AdminUsersSection extends AdminListBase implements OnInit {
   }
 
   onUserAssociationChange(value: string) {
-    this.userForm.patchValue({ associationId: value, branchId: '', chapterId: '' });
+    this.userForm.patchValue({
+      associationId: value,
+      branchId: '',
+      chapterId: '',
+    });
     this.syncUserFormDependencies();
   }
 
@@ -268,7 +305,9 @@ export class AdminUsersSection extends AdminListBase implements OnInit {
     if (!associationId) {
       return [];
     }
-    return this.branches().filter((branch) => branch.associationId === associationId);
+    return this.branches().filter(
+      (branch) => branch.associationId === associationId
+    );
   }
 
   chaptersForUserBranch(): ChapterDto[] {
