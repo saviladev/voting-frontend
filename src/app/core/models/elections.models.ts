@@ -16,6 +16,7 @@ export interface CandidateDto {
   positionId: string;
   position?: ElectionPositionDto;
   voteCount?: number;
+  politicalParty?: PartyDto;
 }
 
 export interface CandidateListDto {
@@ -43,7 +44,25 @@ export interface ElectionDto {
   chapter?: ChapterDto;
   positions: ElectionPositionDto[];
   candidateLists?: CandidateListDto[];
+  votedPositionIds?: string[];
 }
+
+// =================================================================
+// == Voting DTOs
+// =================================================================
+
+export interface VoteSelectionDto {
+  candidateId: string;
+  electionPositionId: string;
+}
+
+export interface BulkVoteDto {
+  selections: VoteSelectionDto[];
+}
+
+// =================================================================
+// == Creation DTOs
+// =================================================================
 
 export interface CreateElectionPositionDto {
   title: string;

@@ -1,34 +1,37 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment'; // Corrected path
-import { ElectionDto } from '../models/elections.models';
+import { environment } from '../../../environments/environment';
+import { ElectionDto, BulkVoteDto, VoteSelectionDto } from '../models/elections.models';
 
 @Injectable({
   providedIn: 'root'
 })
 export class VotingService {
-  private apiUrl = `${environment.apiBaseUrl}/elections`; // Corrected property name
+  private apiUrl = `${environment.apiBaseUrl}/elections`;
 
   constructor(private http: HttpClient) { }
 
   /**
    * Fetches the list of elections that are currently open and eligible
    * for the logged-in member to vote in.
+   * The backend will return an array of elections, where each election
+   * may have a `votedPositionIds` property.
    */
   getVotableElections(): Observable<ElectionDto[]> {
     return this.http.get<ElectionDto[]>(`${this.apiUrl}/votable`);
   }
 
   /**
-   * Submits a vote for a specific candidate in an election.
+   * Submits a batch of votes for a single election.
    * @param electionId The ID of the election.
-   * @param candidateId The ID of the candidate to vote for.
+   * @param selections An array of objects containing candidate and position IDs.
    */
-  vote(electionId: string, candidateId: string): Observable<{ message: string; voteId: string }> {
-    return this.http.post<{ message: string; voteId: string }>(
-      `${this.apiUrl}/${electionId}/vote`,
-      { candidateId }
+  bulkVote(electionId: string, selections: VoteSelectionDto[]): Observable<{ message: string; count: number }> {
+    const payload: BulkVoteDto = { selections };
+    return this.http.post<{ message: string; count: number }>(
+      `${this.apiUrl}/${electionId}/bulk-vote`,
+      payload
     );
   }
 }

@@ -21,19 +21,22 @@
         <ion-button (click)="loadElectionDetails()">Reintentar</ion-button>
       </div>
 
-      <div *ngIf="status() === 'loaded' && election() as e">
+      <div *ngIf="status() === 'loaded' && election()">
         <div class="election-header">
-          <h1>{{ e.name }}</h1>
-          <p>{{ e.description }}</p>
+          <h1>{{ election()?.name }}</h1>
+          <p>{{ election()?.description }}</p>
         </div>
 
-        <div *ngFor="let list of e.candidateLists" class="candidate-list">
-          <div class="list-header">
-            <h2>{{ list.name }}</h2>
-            <p *ngIf="list.politicalParty">{{ list.politicalParty.name }}</p>
-          </div>
+        <!-- Iterate over positions -->
+        <div *ngFor="let position of positions()" class="position-group">
+          <ion-list-header>
+            <h2>{{ position.title }}</h2>
+          </ion-list-header>
 
-          <ion-card *ngFor="let candidate of list.candidates" class="candidate-card">
+          <ion-card 
+            *ngFor="let candidate of position.candidates" 
+            class="candidate-card"
+            [class.selected]="isSelected(position.id, candidate.id)">
             <ion-card-content>
               <div class="candidate-info">
                 <div class="avatar-placeholder">
@@ -41,19 +44,40 @@
                 </div>
                 <div class="candidate-details">
                   <h3>{{ candidate.firstName }} {{ candidate.lastName }}</h3>
-                  <p>{{ candidate.position?.title }}</p>
+                  <p *ngIf="candidate.politicalParty">{{ candidate.politicalParty.name }}</p>
                 </div>
               </div>
-              <ion-button fill="outline" (click)="selectCandidate(candidate)" class="vote-btn">
-                Votar
+              <ion-button 
+                [fill]="isSelected(position.id, candidate.id) ? 'solid' : 'outline'" 
+                (click)="makeSelection(position.id, candidate.id)" 
+                class="vote-btn">
+                {{ isSelected(position.id, candidate.id) ? 'Seleccionado' : 'Seleccionar' }}
               </ion-button>
             </ion-card-content>
           </ion-card>
         </div>
+
       </div>
     </div>
   </div>
 
-  <ion-alert [isOpen]="isAlertOpen()" [header]="alertHeader" [message]="alertMessage" [buttons]="alertButtons"
-    (didDismiss)="handleAlertDismiss()"></ion-alert>
+  <ion-alert 
+    [isOpen]="isAlertOpen()" 
+    [header]="alertHeader()" 
+    [message]="alertMessage()" 
+    [buttons]="alertButtons"
+    (didDismiss)="handleAlertDismiss()">
+  </ion-alert>
 </ion-content>
+
+<ion-footer *ngIf="status() === 'loaded' && election()">
+  <ion-toolbar>
+    <ion-button 
+      expand="block" 
+      class="submit-vote-btn" 
+      [disabled]="!canSubmit()" 
+      (click)="submitVotes()">
+      Emitir Votos
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>
