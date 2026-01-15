@@ -26,7 +26,7 @@
       </div>
     </div>
     <div class="card-body">
-      <table class="table">
+      <table class="table desktop-only">
         <thead>
           <tr>
             <th>Nombre</th>
@@ -51,7 +51,8 @@
                 </div>
                 <div *ngSwitchCase="'BRANCH'">
                   <div style="font-weight: 500">
-                    {{ election.association?.name }} - {{ election.branch?.name }}
+                    {{ election.association?.name }} - {{ election.branch?.name
+                    }}
                   </div>
                   <small class="text-muted">Sede</small>
                 </div>
@@ -60,13 +61,11 @@
                     {{ election.chapter?.name }}
                   </div>
                   <small class="text-muted"
-                    >{{ election.association?.name }} -
-                    {{ election.branch?.name }} (Capítulo)</small
+                    >{{ election.association?.name }} - {{ election.branch?.name
+                    }} (Capítulo)</small
                   >
                 </div>
-                <div *ngSwitchDefault>
-                  {{ getScopeLabel(election.scope) }}
-                </div>
+                <div *ngSwitchDefault>{{ getScopeLabel(election.scope) }}</div>
               </ng-container>
             </td>
             <td>
@@ -90,6 +89,58 @@
           </tr>
         </tbody>
       </table>
+
+      <!-- Mobile Election Cards -->
+      <div class="mobile-only election-cards">
+        <div
+          *ngFor="let election of pagedElections()"
+          class="election-mobile-card"
+        >
+          <div class="card-mobile-header">
+            <div class="name-status">
+              <div class="election-name">{{ election.name }}</div>
+              <span class="status" [class.active]="election.status === 'OPEN'">
+                {{ getStatusLabel(election.status) }}
+              </span>
+            </div>
+            <div class="scope-label">
+              <ng-container [ngSwitch]="election.scope">
+                <span *ngSwitchCase="'ASSOCIATION'"
+                  >{{ election.association?.name }} (Asoc.)</span
+                >
+                <span *ngSwitchCase="'BRANCH'"
+                  >{{ election.branch?.name }} (Sede)</span
+                >
+                <span *ngSwitchCase="'CHAPTER'"
+                  >{{ election.chapter?.name }} (Cap.)</span
+                >
+                <span *ngSwitchDefault
+                  >{{ getScopeLabel(election.scope) }}</span
+                >
+              </ng-container>
+            </div>
+          </div>
+          <div class="card-mobile-body">
+            <div class="dates">
+              <div>
+                <strong>Inicia:</strong> {{ election.startDate |
+                date:'shortDate' }}
+              </div>
+              <div>
+                <strong>Finaliza:</strong> {{ election.endDate |
+                date:'shortDate' }}
+              </div>
+            </div>
+            <button
+              class="btn ghost full-width"
+              (click)="viewDetails(election)"
+            >
+              Gestionar Elección
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div class="table-footer">
         <button
           class="btn ghost"

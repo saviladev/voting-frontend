@@ -351,12 +351,11 @@
   width: 100%;
 
   // Simple y limpio
-  >* {
+  > * {
     display: block;
     width: 100%;
   }
 }
-
 
 // Asegurar que router-outlet no interfiera
 router-outlet {
@@ -505,11 +504,11 @@ router-outlet {
   transition: transform 0.2s ease, color 0.2s ease;
 }
 
-.switch input:checked+.slider {
+.switch input:checked + .slider {
   background-color: rgba(60, 141, 188, 0.25);
 }
 
-.switch input:checked+.slider::before {
+.switch input:checked + .slider::before {
   transform: translateX(24px);
   content: "V";
   color: var(--admin-primary);
@@ -862,7 +861,6 @@ router-outlet {
 }
 
 @media (max-width: 1200px) {
-
   // El grid se mantiene, solo cambian los tamaños
   .adminlte-shell.sidebar-collapsed {
     grid-template-columns: var(--sidebar-collapsed-width) 1fr;
@@ -900,8 +898,6 @@ router-outlet {
   }
 }
 
-
-
 // IMPORTANTE: Controlar el comportamiento de ion-content en páginas hijas
 // .adminlte {
 //   ion-content {
@@ -920,3 +916,227 @@ router-outlet {
 //     width: 100%;
 //   }
 // }
+
+// --- ELECTION MODULE RESPONSIVE OVERRIDES ---
+app-admin-elections-section,
+app-admin-election-detail,
+app-admin-election-results {
+  // Force grid to 1 column on tablets and mobile
+  @media (max-width: 992px) {
+    .grid {
+      grid-template-columns: 1fr !important;
+      gap: 16px !important;
+    }
+
+    .span-8,
+    .span-6,
+    .span-4,
+    .span-12 {
+      grid-column: span 1 !important;
+    }
+
+    // Make cards take full width
+    .card {
+      width: 100% !important;
+    }
+  }
+
+  // Header and filter row adjustments
+  .card-header {
+    @media (max-width: 768px) {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 16px !important;
+
+      .filter-row {
+        width: 100% !important;
+        min-width: 0 !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+
+        .form-control,
+        .btn {
+          width: 100% !important;
+          margin: 0 !important;
+        }
+      }
+    }
+  }
+
+  // Tables on mobile
+  .card-body {
+    @media (max-width: 768px) {
+      padding: 12px !important;
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch;
+
+      .table {
+        min-width: 600px; // Maintain some readability with scroll
+      }
+      .table.desktop-only {
+          display: none !important;
+      }
+    }
+  }
+
+  // Visibility helpers
+  .desktop-only {
+    @media (max-width: 768px) {
+      display: none !important;
+    }
+  }
+
+  .mobile-only {
+    display: none;
+    @media (max-width: 768px) {
+      display: block !important;
+    }
+  }
+
+  // Mobile card styles
+  .election-mobile-card {
+      background: var(--admin-bg);
+      border: 1px solid var(--admin-border);
+      border-radius: 10px;
+      margin-bottom: 12px;
+      padding: 12px;
+
+      .card-mobile-header {
+          margin-bottom: 10px;
+          border-bottom: 1px solid var(--admin-border);
+          padding-bottom: 8px;
+
+          .name-status {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              gap: 8px;
+              
+              .election-name {
+                  font-weight: 600;
+                  font-size: 1rem;
+              }
+          }
+
+          .scope-label {
+              font-size: 0.85rem;
+              color: var(--admin-muted);
+              margin-top: 4px;
+          }
+      }
+
+      .card-mobile-body {
+          .dates {
+              font-size: 0.85rem;
+              margin-bottom: 12px;
+              color: var(--admin-ink);
+          }
+      }
+  }
+}
+
+
+app-admin-election-results {
+  .card-body
+    > div
+    > div[style*="display: flex; gap: 2rem; align-items: center;"] {
+    @media (max-width: 768px) {
+      flex-direction: column !important;
+      align-items: center !important;
+      gap: 1.5rem !important;
+
+      div[style*="flex: 1"] {
+        width: 100% !important;
+        flex: none !important;
+      }
+
+      div[style*="width: 300px"] {
+        width: 100% !important;
+        max-width: 300px !important;
+        margin: 0 auto !important;
+      }
+    }
+  }
+
+  // Results tabs scrollable on mobile
+  div[style*="display: flex; gap: 0.5rem; border-bottom: 2px solid var(--border-color);"] {
+    @media (max-width: 600px) {
+      overflow-x: auto !important;
+      padding-bottom: 4px !important;
+      &::-webkit-scrollbar {
+        height: 4px;
+      }
+      .btn {
+        white-space: nowrap !important;
+        padding: 8px 12px !important;
+      }
+    }
+  }
+}
+
+app-admin-election-detail {
+  .list-header {
+    @media (max-width: 600px) {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 12px !important;
+
+      div {
+        width: 100% !important;
+      }
+
+      .btn {
+        width: 100% !important;
+        justify-content: center !important;
+      }
+    }
+  }
+}
+
+// --- GLOBAL SHELL MOBILE IMPROVEMENTS ---
+@media (max-width: 768px) {
+  .adminlte-shell {
+    grid-template-columns: 1fr !important; // Content takes full width
+  }
+
+  .sidebar {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    height: 100vh;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    box-shadow: 10px 0 25px rgba(0, 0, 0, 0.2);
+  }
+
+  .adminlte-shell:not(.sidebar-collapsed) .sidebar {
+    transform: translateX(0);
+  }
+
+  .adminlte-shell.sidebar-collapsed .sidebar {
+    transform: translateX(-100%);
+  }
+
+  .sidebar-overlay {
+    transition: opacity 0.3s ease;
+  }
+  
+  .main {
+      padding: 16px !important;
+      min-width: 0;
+  }
+  
+  .topbar h1 {
+      font-size: 1.4rem !important;
+  }
+  
+   .topbar-actions {
+      .btn {
+          padding: 8px 12px;
+          font-size: 0.85rem;
+      }
+  }
+}
+
